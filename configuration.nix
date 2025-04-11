@@ -30,6 +30,7 @@
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINI/kH+QS+z6PrwR/MqRlbUklUowEZiDPwpyMa+6Kb9k jackmanb@jackmanb01"
     ];
   };
+  nix.trustedUsers = [ "root" "@wheel" "brendan" ];
 
   environment.systemPackages = with pkgs; [
     vim wget
