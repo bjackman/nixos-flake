@@ -33,7 +33,7 @@
   nix.trustedUsers = [ "root" "@wheel" "brendan" ];
 
   environment.systemPackages = with pkgs; [
-    vim wget
+    vim wget neofetch
   ];
   services.openssh.enable = true;
   networking.firewall.enable = false;
