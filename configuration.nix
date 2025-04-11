@@ -3,9 +3,12 @@
 {
   imports = [ ./hardware-configuration.nix ];
 
-  boot.loader = {
-    systemd-boot.enable = true;
-    efi.canTouchEfiVariables = true;
+  boot = {
+    loader = {
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
+    };
+    kernelPackages = pkgs.linuxKernel.packages.linux_6_13;
   };
 
   networking = {
