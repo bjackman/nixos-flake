@@ -3,15 +3,19 @@
 {
   imports = [ ./hardware-configuration.nix ];
 
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader = {
+    systemd-boot.enable = true;
+    efi.canTouchEfiVariables = true;
+  };
 
-  networking.hostName = "nixos";
-  networking.interfaces.eno2.useDHCP = true;
-  networking.interfaces.eno1.ipv4.addresses = [{
-    address = "192.168.2.3";
-    prefixLength = 24;
-  }];
+  networking = {
+    hostName = "nixos";
+    interfaces.eno2.useDHCP = true;
+    interfaces.eno1.ipv4.addresses = [{
+      address = "192.168.2.3";
+      prefixLength = 24;
+    }];
+  };
 
   time.timeZone = "Europe/Zurich";
   i18n.defaultLocale = "en_US.UTF-8";
