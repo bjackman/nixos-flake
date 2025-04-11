@@ -31,6 +31,7 @@
     ];
   };
   nix.trustedUsers = [ "root" "@wheel" "brendan" ];
+  security.sudo.wheelNeedsPassword = false;
 
   environment.systemPackages = with pkgs; [
     vim wget neofetch
