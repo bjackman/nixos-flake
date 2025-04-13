@@ -1,7 +1,5 @@
 {
-  inputs = {
-    nixpkgs = { url = "github:nixos/nixpkgs/nixos-24.11"; };
-  };
+  inputs = { nixpkgs = { url = "github:nixos/nixpkgs/nixos-24.11"; }; };
 
   outputs = inputs@{ self, nixpkgs }: {
     nixosConfigurations = {
@@ -29,9 +27,8 @@
     # For this not to be tied to x86 you should use something like flake-utils
     # which provides more wrappers, which lets you make this architecture
     # agnostic.
-    devShells.x86_64-linux.default = let pkgs = import nixpkgs {
-      system = "x86_64-linux";
-    };
-    in pkgs.mkShell { packages = [ pkgs.nil ]; };
+    devShells.x86_64-linux.default =
+      let pkgs = import nixpkgs { system = "x86_64-linux"; };
+      in pkgs.mkShell { packages = with pkgs; [ nil nixfmt ]; };
   };
 }
