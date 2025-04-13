@@ -1,10 +1,7 @@
 { config, lib, pkgs, modulesPath, ... }:
 
 {
-  imports = [
-    ./hardware-configuration.nix
-    "${modulesPath}/virtualisation/qemu-vm.nix"
-    ];
+  imports = [ "${modulesPath}/virtualisation/qemu-vm.nix" ];
 
   boot = {
     loader = {

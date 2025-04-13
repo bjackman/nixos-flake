@@ -1,5 +1,6 @@
 { config, lib, pkgs, ... }:
 {
+  imports = [ ./aethelred-hardware-configuration.nix ];
   networking = {
     hostName = "aethelred";
     interfaces.eno2.useDHCP = true;
