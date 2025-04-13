@@ -1,7 +1,10 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, modulesPath, ... }:
 
 {
-  imports = [ ./hardware-configuration.nix ];
+  imports = [
+    ./hardware-configuration.nix
+    "${modulesPath}/virtualisation/qemu-vm.nix"
+    ];
 
   boot = {
     loader = {
@@ -32,6 +35,8 @@
   ];
   services.openssh.enable = true;
   networking.firewall.enable = false;
+
+  virtualisation.forwardPorts = [ { from = "host"; host.port = 2222; guest.port = 22; } ];
 
   system.stateVersion = "24.11"; # DO NOT CHANGE IT! NEVER CHANGE IT!
 }
