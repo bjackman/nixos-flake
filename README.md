@@ -30,10 +30,6 @@ machine's disk without needing to run an installer at all, but:
 
 ## Stuff I need to figure out
 
-- How the hell do I get code navigation working for Nix? I think I want to
-  configure something like [`nil`](https://github.com/oxalica/nil), and I want it
-  to be a `devShell`, the I'll run `nix develop` and then `code .`, at least
-  according to ChatGPT, if you do that then VSCode inherits the environment.
 - Once I have some capability to actually read the damn code, try and stare at
   it and figure out how the hell the kernel build process works.
 - Then, based on that beautiful new understanding, figure out how to build a
