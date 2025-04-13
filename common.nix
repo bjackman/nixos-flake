@@ -8,23 +8,14 @@
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
     };
-    kernelPackages = pkgs.linuxPackages_custom {
+    kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor (pkgs.buildLinux {
       version = "6.14";
       src = pkgs.fetchgit {
         url = "https://github.com/torvalds/linux.git";
         rev = "v6.14";
         hash = "sha256-5Fkx6y9eEKuQVbDkYh3lxFQrXCK4QJkAZcIabj0q/YQ=";
       };
-      configfile = ./qemu_config;
-    };
-
-    # Desperately trying to get the build to not fail because of missing
-    # modules. I have deliberately disabled those modules to make the build
-    # faster. But this doesn't work.
-    initrd.availableKernelModules = [ ];
-    initrd.kernelModules = [ ];
-    kernelModules = [ ];
-    extraModulePackages = [ ];
+    }));
   };
 
   time.timeZone = "Europe/Zurich";
