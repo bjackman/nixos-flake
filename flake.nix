@@ -11,12 +11,19 @@
           modules = [ ./common.nix ];
           specialArgs = { inherit inputs; };
         };
+
         # Configuration intended for the big chungus in the office on my desk-area-network.
         # Whether this approach of combining separate modules instead of using
         # options to a single shared module is a good one... I have no idea.
         aethelred = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [ ./common.nix ./aethelred.nix ];
+          specialArgs = { inherit inputs; };
+        };
+
+        qemu = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [ ./common.nix ./qemu.nix ];
           specialArgs = { inherit inputs; };
         };
       };
