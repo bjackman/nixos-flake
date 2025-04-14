@@ -30,5 +30,22 @@
       # which provides more wrappers, which lets you make this architecture
       # agnostic.
       devShells.x86_64-linux.default = pkgs.mkShell { packages = with pkgs; [ nil nixfmt ]; };
+
+      apps.x86_64-linux.rebuild-aethelred = {
+        type = "app";
+        # writeShellApplication was suggested by AI. It returns a derivation.
+        # But .program needs to be a store path. AI suggested that I just
+        # interpolate it into a string and append the binary path onto the end
+        # of it. This is stupid as hell and definitely not how you're supposed
+        # to do this. Examples I found on GitHub seem to not have this problem.
+        # I dunno.
+        program = "${pkgs.writeShellApplication {
+          name = "rebuild-aethelred-script";
+          runtimeInputs = [ self pkgs.nixos-rebuild ];
+          text = ''
+          nixos-rebuild switch --flake .#aethelred --target-host brendan@192.168.2.3 --use-remote-sudo
+          '';
+        }}/bin/rebuild-aethelred-script";
+      };
     };
 }

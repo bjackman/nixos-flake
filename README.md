@@ -22,6 +22,13 @@ according to the config in this Flake by running `nixos-rebuild` with the
 to directly generate the disk image and just splat the build directly onto the
 machine's disk without needing to run an installer at all.
 
+You can install the configured system to `aethelred` (assuming it's at
+`192.168.2.3` and your SSH key is already installed) using:
+
+```
+nix run .#apps.x86_64-linux.rebuild-aethelred
+```
+
 ## Stuff I need to figure out
 
 - Once I have some capability to actually read the damn code, try and stare at
