@@ -14,7 +14,7 @@
       # options to a single shared module is a good one... I have no idea.
       aethelred = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
-        modules = [ ./common.nix ./aethlered.nix ];
+        modules = [ ./common.nix ./aethelred.nix ];
         specialArgs = { inherit inputs; };
       };
     };
