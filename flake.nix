@@ -36,7 +36,7 @@
       # For this not to be tied to x86 you should use something like flake-utils
       # which provides more wrappers, which lets you make this architecture
       # agnostic.
-      devShells.x86_64-linux.default = pkgs.mkShell { packages = with pkgs; [ nil nixfmt ]; };
+      devShells.x86_64-linux.default = pkgs.mkShell { packages = with pkgs; [ nil nixfmt-classic ]; };
 
       apps.x86_64-linux.rebuild-aethelred = {
         type = "app";
