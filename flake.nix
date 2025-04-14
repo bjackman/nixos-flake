@@ -36,7 +36,8 @@
       # For this not to be tied to x86 you should use something like flake-utils
       # which provides more wrappers, which lets you make this architecture
       # agnostic.
-      devShells.x86_64-linux.default = pkgs.mkShell { packages = with pkgs; [ nil nixfmt-classic ]; };
+      devShells.x86_64-linux.default =
+        pkgs.mkShell { packages = with pkgs; [ nil nixfmt-classic ]; };
 
       apps.x86_64-linux.rebuild-aethelred = {
         type = "app";
@@ -46,13 +47,15 @@
         # of it. This is stupid as hell and definitely not how you're supposed
         # to do this. Examples I found on GitHub seem to not have this problem.
         # I dunno.
-        program = "${pkgs.writeShellApplication {
-          name = "rebuild-aethelred-script";
-          runtimeInputs = [ self pkgs.nixos-rebuild ];
-          text = ''
-          nixos-rebuild switch --flake .#aethelred --target-host brendan@192.168.2.3 --use-remote-sudo
-          '';
-        }}/bin/rebuild-aethelred-script";
+        program = "${
+            pkgs.writeShellApplication {
+              name = "rebuild-aethelred-script";
+              runtimeInputs = [ self pkgs.nixos-rebuild ];
+              text = ''
+                nixos-rebuild switch --flake .#aethelred --target-host brendan@192.168.2.3 --use-remote-sudo
+              '';
+            }
+          }/bin/rebuild-aethelred-script";
       };
     };
 }
