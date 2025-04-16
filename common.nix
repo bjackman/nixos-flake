@@ -77,7 +77,13 @@
       # https://g.co/gemini/share/41cb753acfd9
       configfile = ./v6.14_tiny_kvm_guest.config;
     };
+    # Desperately trying to get the build to not fail because of missing
+    # modules. I have deliberately disabled those modules to make the build
+    # faster. But this doesn't work.
+    initrd.availableKernelModules = [ ];
+    initrd.kernelModules = [ ];
   };
+  hardware.enableAllHardware = false;
 
   time.timeZone = "Europe/Zurich";
   i18n.defaultLocale = "en_US.UTF-8";
