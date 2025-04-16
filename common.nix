@@ -80,8 +80,11 @@
     # Desperately trying to get the build to not fail because of missing
     # modules. I have deliberately disabled those modules to make the build
     # faster. But this doesn't work.
-    initrd.availableKernelModules = [ ];
-    initrd.kernelModules = [ ];
+    initrd = {
+      availableKernelModules = [ ];
+      kernelModules = [ ];
+      includeDefaultModules = false;
+    };
   };
   hardware.enableAllHardware = false;
 
