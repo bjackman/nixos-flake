@@ -63,8 +63,8 @@
         version = "6.14";
         src = pkgs.fetchgit {
           url = "https://github.com/torvalds/linux.git";
-          rev = "d24fa977eec53399a9a49a2e1dc592430ea0a607";
-          hash = "sha256-pI1PsHVdu6G6dAX+GwRk5OZn4pVwtRrhTPtGteeGGOE=";
+          rev = "v6.14";
+          hash = "sha256-5Fkx6y9eEKuQVbDkYh3lxFQrXCK4QJkAZcIabj0q/YQ=";
         };
         stdenv = pkgs.ccacheStdenv;
       }));
