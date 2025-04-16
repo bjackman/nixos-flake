@@ -59,9 +59,13 @@ nix run .#apps.x86_64-linux.rebuild-aethelred
   ```
 - Then, I also need `ccache` support. I asked about that
   [here](https://discourse.nixos.org/t/help-using-ccache-for-kernel-build/63010)
-  but no answers yet. Someone at work suggested that `programs.ccache` might
+  but no answers yet.
+
+  Someone at work suggested that `programs.ccache` might
   help, some of this will only work when building on NixOS but
-  `programs.ccache.packageNames` might work in general.
+  `programs.ccache.packageNames` might work in general. However, if I just threw
+  that into `common.nix` nothing happened.
+
 - I haven't figured out how to build disk images yet (although the QEMU VM built
   above does create a QCOW2 image). It seems like
   [`nixos-generators`](https://github.com/nix-community/nixos-generators) might
