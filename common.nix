@@ -58,16 +58,25 @@
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
     };
-    kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor
-      (pkgs.buildLinux {
-        version = "6.14";
-        src = pkgs.fetchgit {
-          url = "https://github.com/torvalds/linux.git";
-          rev = "v6.14";
-          hash = "sha256-5Fkx6y9eEKuQVbDkYh3lxFQrXCK4QJkAZcIabj0q/YQ=";
-        };
-        stdenv = pkgs.ccacheStdenv;
-      }));
+    kernelPackages = pkgs.linuxPackages_custom {
+      version = "6.14";
+      src = pkgs.fetchgit {
+        url = "https://github.com/torvalds/linux.git";
+        rev = "d24fa977eec53399a9a49a2e1dc592430ea0a607";
+        hash = "sha256-pI1PsHVdu6G6dAX+GwRk5OZn4pVwtRrhTPtGteeGGOE=";
+      };
+      # TODO: I wanna set stdenv = pkgs.ccacheStdenv. Ultimately the definition
+      # of the thing we're using here does allow doing that (see
+      # manual-config.nix in nixpkgs), but the wrapper functions
+      # (linux-kernels.nix) don't directly export that. I suspect that the
+      # callPackage mechanism will have some general way to override this, but
+      # I'm a bit too tired to understand this:
+      # https://nixos.org/guides/nix-pills/13-callpackage-design-pattern.html
+      # Gemini 2.5 gave me something that sounds kiinda plausible, but looks
+      # pretty ugly:
+      # https://g.co/gemini/share/41cb753acfd9
+      configfile = ./v6.14_tiny_kvm_guest.config;
+    };
   };
 
   time.timeZone = "Europe/Zurich";
