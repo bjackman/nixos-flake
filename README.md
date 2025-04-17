@@ -4,10 +4,19 @@ This flake defines two NixOS systems, one called `base` which is just a kinda
 minimal system, and one called `aethelred` which is intended for a specific
 physical machine in my office.
 
+Before you do anything else you'll need to make ccache work with your Nix
+installation. You can check this by doing:
+
+```
+nix run .#packages.x86_64-linux.hello
+```
+
+If it isn't setup that should  give you instructions.
+
 You can run `base` in a VM like this:
 
 ```
-nix run .#nixosConfigurations.base.config.system.build.vm
+nix run .#nixosConfigurations.qemu.config.system.build.vm
 ```
 
 The details of what this does seem to be configured by a set of options under
@@ -27,6 +36,12 @@ You can install the configured system to `aethelred` (assuming it's at
 
 ```
 nix run .#apps.x86_64-linux.rebuild-aethelred
+```
+
+Or, if forwarding the SSH connection to a remote host on port 8022:
+
+```
+NIX_SSHOPTS='-p 8022' nix run .#apps.x86_64-linux.rebuild-aethelred -- localhost
 ```
 
 ## Stuff I need to figure out
