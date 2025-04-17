@@ -16,7 +16,7 @@ If it isn't setup that should  give you instructions.
 You can run `base` in a VM like this:
 
 ```
-nix run .#nixosConfigurations.base.config.system.build.vm
+nix run .#nixosConfigurations.qemu.config.system.build.vm
 ```
 
 The details of what this does seem to be configured by a set of options under
