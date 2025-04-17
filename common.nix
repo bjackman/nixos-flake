@@ -8,10 +8,15 @@
     };
     kernelPackages = pkgs.linuxPackages_custom {
       version = "6.14";
-      src = pkgs.fetchgit {
+      # This vs nixpkgs.fetchgit?? No fucking idea. This one is documented,
+      # fetchgit isn't really. And this doesn't seem to require you to
+      # pointlessly specify a hash of the contents.
+      src = builtins.fetchGit {
         url = "https://github.com/torvalds/linux.git";
-        rev = "d24fa977eec53399a9a49a2e1dc592430ea0a607";
-        hash = "sha256-pI1PsHVdu6G6dAX+GwRk5OZn4pVwtRrhTPtGteeGGOE=";
+        # url = "https://github.com/googleprodkernel/linux-kvm.git";
+        # ref = "asi-rfcv2-preview";
+        ref = "refs/tags/v6.14";
+        rev = "38fec10eb60d687e30c8c6b5420d86e8149f7557";
       };
       # TODO: I wanna set stdenv = pkgs.ccacheStdenv. Ultimately the definition
       # of the thing we're using here does allow doing that (see
