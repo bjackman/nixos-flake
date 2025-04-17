@@ -4,6 +4,15 @@ This flake defines two NixOS systems, one called `base` which is just a kinda
 minimal system, and one called `aethelred` which is intended for a specific
 physical machine in my office.
 
+Before you do anything else you'll need to make ccache work with your Nix
+installation. You can check this by doing:
+
+```
+nix run .#packages.x86_64-linux.hello
+```
+
+If it isn't setup that should  give you instructions.
+
 You can run `base` in a VM like this:
 
 ```

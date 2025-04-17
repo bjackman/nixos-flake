@@ -96,5 +96,29 @@
             }
           }/bin/rebuild-aethelred-script";
       };
+
+      # A hello-world build that can be used to check the ccacheStdenv, this is
+      # helpful because if it's broken the kernel build doesn't show the useful
+      # outputs.
+      packages.x86_64-linux.hello = pkgs.ccacheStdenv.mkDerivation {
+        name = "hello";
+
+        src = ./src;
+
+        buildInputs = with pkgs; [ coreutils gcc ];
+
+        # Build Phases
+        # See: https://nixos.org/nixpkgs/manual/#sec-stdenv-phases
+        configurePhase = ''
+          declare -xp
+        '';
+        buildPhase = ''
+          gcc "$src/hello.c" -o ./hello
+        '';
+        installPhase = ''
+          mkdir -p "$out/bin"
+          cp ./hello "$out/bin/"
+        '';
+      };
     };
 }
