@@ -1,53 +1,6 @@
 { config, lib, pkgs, modulesPath, ... }:
 
 {
-  nixpkgs = {
-    # Configure ccache. I believe this is configuring something which nixpkgs
-    # will set up as ccacheStdenv. You could configure this to be used for _all_
-    # builds with:
-    # config = { replaceStdenv = { pkgs }: pkgs.ccacheStdenv; };
-    # But, that's a bad idea since you then lose the remote shared cache, plus
-    # some builds seem to be incompatible with it and they fail.
-    # How to actually apply the ccacheStdenv is a little confusing. See my notes
-    # about figuring this out here:
-    # https://discourse.nixos.org/t/help-using-ccache-for-kernel-build/63010
-    # TODO: This will just fail the build if you haven't created
-    # /var/cache/ccache or you haven't exposed it into the build sandbox by
-    #   setting:
-    #   extra-sandbox-paths = /var/cache/ccache
-    #   in /etc/nix/nix.conf. Furthermore, the kernel build fails very
-    #   confusingly because the wrapper script doesn't look like a C compiler at
-    #   all if it's printing those messages, and kbuild doesn't print the
-    #   messages. It should ideally be both fairly obvious, and also optional.
-    overlays = [
-      (final: prev: {
-        ccacheWrapper = prev.ccacheWrapper.override {
-          extraConfig = ''
-            export CCACHE_COMPRESS=1
-            export CCACHE_DIR="/nix/var/cache/ccache"
-            export CCACHE_UMASK=007
-            if [ ! -d "$CCACHE_DIR" ]; then
-              echo "====="
-              echo "Directory '$CCACHE_DIR' does not exist"
-              echo "Please create it with:"
-              echo "  sudo mkdir -m0770 '$CCACHE_DIR'"
-              echo "  sudo chown root:nixbld '$CCACHE_DIR'"
-              echo "====="
-              exit 1
-            fi
-            if [ ! -w "$CCACHE_DIR" ]; then
-              echo "====="
-              echo "Directory '$CCACHE_DIR' is not accessible for user $(whoami)"
-              echo "Please verify its access permissions"
-              echo "====="
-              exit 1
-            fi
-          '';
-        };
-      })
-    ];
-  };
-
   boot = {
     loader = {
       systemd-boot.enable = true;
