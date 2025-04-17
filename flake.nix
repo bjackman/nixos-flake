@@ -25,8 +25,10 @@
                 echo "====="
                 echo "Directory '$CCACHE_DIR' does not exist"
                 echo "Please create it with:"
-                echo "  sudo mkdir -m0770 '$CCACHE_DIR'"
+                echo "  sudo mkdir -p -m0770 '$CCACHE_DIR'"
                 echo "  sudo chown root:nixbld '$CCACHE_DIR'"
+                echo "Then add 'extra-sandbox-paths = $CCACHE_DIR' to /etc/nix/nix.conf"
+                echo "Then 'sudo systemctl restart nix-daemon'"
                 echo "====="
                 exit 1
               fi
