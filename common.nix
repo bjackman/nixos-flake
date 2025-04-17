@@ -14,7 +14,8 @@
           rev = "v6.14";
           hash = "sha256-5Fkx6y9eEKuQVbDkYh3lxFQrXCK4QJkAZcIabj0q/YQ=";
         };
-        stdenv = pkgs.ccacheStdenv;
+        # Doens't work, see debug-ccache branch.
+        # stdenv = pkgs.ccacheStdenv;
       }));
   };
 
