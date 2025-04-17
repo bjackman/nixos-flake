@@ -93,7 +93,8 @@
               name = "rebuild-aethelred-script";
               runtimeInputs = [ self pkgs.nixos-rebuild ];
               text = ''
-                nixos-rebuild switch --flake .#aethelred --target-host brendan@192.168.2.3 --use-remote-sudo
+                HOST=''${1:-192.168.2.3}
+                nixos-rebuild switch --flake .#aethelred --target-host brendan@"$HOST" --use-remote-sudo
               '';
             }
           }/bin/rebuild-aethelred-script";

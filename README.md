@@ -38,6 +38,12 @@ You can install the configured system to `aethelred` (assuming it's at
 nix run .#apps.x86_64-linux.rebuild-aethelred
 ```
 
+Or, if forwarding the SSH connection to a remote host on port 8022:
+
+```
+NIX_SSHOPTS='-p 8022' nix run .#apps.x86_64-linux.rebuild-aethelred -- localhost
+```
+
 ## Stuff I need to figure out
 
 - Once I have some capability to actually read the damn code, try and stare at
