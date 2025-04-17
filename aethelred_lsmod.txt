@@ -1,0 +1,161 @@
+Module                  Size  Used by
+af_packet              65536  2
+cfg80211             1433600  0
+8021q                  53248  0
+nls_iso8859_1          12288  1
+nls_cp437              16384  1
+vfat                   24576  1
+fat                   114688  1 vfat
+i10nm_edac             24576  0
+skx_edac_common        32768  1 i10nm_edac
+nfit                   86016  1 skx_edac_common
+edac_core             110592  2 skx_edac_common,i10nm_edac
+libnvdimm             245760  1 nfit
+nouveau              3694592  0
+cbc                    12288  0
+encrypted_keys         28672  1 libnvdimm
+trusted                49152  1 encrypted_keys
+asn1_encoder           12288  1 trusted
+tee                    49152  1 trusted
+intel_rapl_msr         20480  0
+intel_rapl_common      53248  1 intel_rapl_msr
+intel_uncore_frequency    12288  0
+intel_uncore_frequency_common    16384  1 intel_uncore_frequency
+intel_ifs              45056  0
+x86_pkg_temp_thermal    16384  0
+eeepc_wmi              12288  0
+intel_powerclamp       20480  0
+asus_wmi              114688  1 eeepc_wmi
+joydev                 24576  0
+input_leds             12288  0
+mousedev               24576  0
+sr_mod                 28672  0
+coretemp               20480  0
+cdrom                  81920  1 sr_mod
+platform_profile       16384  1 asus_wmi
+polyval_clmulni        12288  0
+evdev                  28672  3
+polyval_generic        12288  1 polyval_clmulni
+mac_hid                12288  0
+ghash_clmulni_intel    16384  0
+deflate                12288  1
+battery                28672  1 asus_wmi
+sha512_ssse3           53248  0
+i8042                  57344  1 asus_wmi
+iaa_crypto             57344  0
+sha256_ssse3           36864  1
+sparse_keymap          12288  1 asus_wmi
+mxm_wmi                12288  1 nouveau
+drm_gpuvm              45056  1 nouveau
+gpu_sched              65536  1 nouveau
+drm_exec               12288  2 drm_gpuvm,nouveau
+drm_ttm_helper         16384  2 nouveau
+ttm                   110592  2 drm_ttm_helper,nouveau
+ofpart                 16384  0
+cmdlinepart            16384  0
+drm_display_helper    290816  1 nouveau
+spi_nor               167936  0
+dax_hmem               16384  0
+cxl_acpi               28672  0
+mtd                   110592  4 spi_nor,cmdlinepart,ofpart
+cxl_port               16384  0
+iTCO_wdt               16384  0
+rfkill                 40960  3 asus_wmi,cfg80211
+cec                    77824  1 drm_display_helper
+sha1_ssse3             32768  2
+intel_pmc_bxt          16384  1 iTCO_wdt
+wmi_bmof               12288  0
+cxl_core              339968  2 cxl_port,cxl_acpi
+aesni_intel           126976  0
+watchdog               49152  1 iTCO_wdt
+intel_sdsi             16384  0
+i2c_algo_bit           24576  1 nouveau
+pmt_telemetry          16384  0
+crypto_simd            16384  1 aesni_intel
+pmt_class              16384  1 pmt_telemetry
+cryptd                 28672  2 crypto_simd,ghash_clmulni_intel
+atlantic              331776  0
+rapl                   20480  0
+einj                   28672  1 cxl_core
+intel_lpss_pci         28672  0
+video                  81920  2 asus_wmi,nouveau
+intel_cstate           20480  0
+intel_uncore          266240  0
+dax                    53248  1 dax_hmem
+igc                   204800  0
+mei_me                 57344  0
+intel_lpss             12288  1 intel_lpss_pci
+macsec                 69632  1 atlantic
+isst_if_mmio           12288  0
+backlight              32768  3 video,asus_wmi,nouveau
+i2c_i801               40960  0
+isst_if_mbox_pci       12288  0
+idma64                 20480  0
+idxd                  159744  1 iaa_crypto
+ptp                    45056  2 atlantic,igc
+i2c_smbus              20480  1 i2c_i801
+spi_intel_pci          12288  0
+uas                    36864  0
+mei                   204800  1 mei_me
+hid_generic            12288  0
+onboard_usb_dev        24576  0
+led_class              24576  4 input_leds,asus_wmi,igc,nouveau
+i2c_mux                16384  1 i2c_i801
+isst_if_common         24576  2 isst_if_mmio,isst_if_mbox_pci
+spi_intel              36864  1 spi_intel_pci
+pps_core               32768  1 ptp
+virt_dma               16384  1 idma64
+intel_vsec             20480  0
+wmi                    36864  5 video,asus_wmi,wmi_bmof,mxm_wmi,nouveau
+idxd_bus               16384  2 idxd,iaa_crypto
+tiny_power_button      12288  0
+sch_fq_codel           20480  13
+rtc_cmos               28672  1
+tpm_crb                28672  0
+tpm_tis                16384  0
+tpm_tis_core           36864  1 tpm_tis
+pinctrl_alderlake      32768  0
+button                 28672  1 nouveau
+atkbd                  40960  0
+libps2                 24576  1 atkbd
+serio                  28672  2 atkbd,i8042
+vivaldi_fmap           12288  1 atkbd
+loop                   45056  0
+tun                    69632  0
+tap                    32768  0
+macvlan                36864  0
+bridge                405504  0
+stp                    12288  1 bridge
+llc                    16384  2 bridge,stp
+kvm_intel             434176  0
+kvm                  1384448  1 kvm_intel
+fuse                  249856  1
+efi_pstore             12288  0
+configfs               69632  1
+nfnetlink              20480  1
+efivarfs               36864  1
+tpm                   143360  4 tpm_tis,trusted,tpm_crb,tpm_tis_core
+libaescfb              12288  1 tpm
+ecdh_generic           16384  1 tpm
+ecc                    45056  1 ecdh_generic
+rng_core               20480  1 tpm
+dmi_sysfs              24576  0
+ip_tables              28672  0
+autofs4                65536  0
+ext4                 1146880  1
+crc16                  12288  1 ext4
+mbcache                16384  1 ext4
+jbd2                  204800  1 ext4
+usbhid                 86016  0
+hid                   266240  2 usbhid,hid_generic
+usb_storage            94208  1 uas
+ahci                   57344  0
+libahci                69632  1 ahci
+libata                491520  2 libahci,ahci
+xhci_pci               28672  0
+nvme                   65536  3
+xhci_hcd              405504  1 xhci_pci
+scsi_mod              339968  4 usb_storage,uas,libata,sr_mod
+nvme_core             245760  4 nvme
+nvme_auth              24576  1 nvme_core
+scsi_common            16384  5 scsi_mod,usb_storage,uas,libata,sr_mod
