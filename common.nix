@@ -75,7 +75,7 @@
       # Gemini 2.5 gave me something that sounds kiinda plausible, but looks
       # pretty ugly:
       # https://g.co/gemini/share/41cb753acfd9
-      configfile = ./v6.14_tiny_kvm_guest.config;
+      configfile = ./v6.14_def_kvm_guest.config;
     };
     # Desperately trying to get the build to not fail because of missing
     # modules. I have deliberately disabled those modules to make the build
