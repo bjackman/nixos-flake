@@ -19,17 +19,12 @@
     #   confusingly because the wrapper script doesn't look like a C compiler at
     #   all if it's printing those messages, and kbuild doesn't print the
     #   messages. It should ideally be both fairly obvious, and also optional.
-    # I cargo-culted this from:
-    # https://github.com/linyinfeng/nixos-musl-example/blob/ad0973d37a4ed7c1f03d8988d1e0f946b39b5aa9/flake.nix#L12
-    # config = { replaceStdenv = { pkgs }: pkgs.ccacheStdenv; };
-    # TODO: It would probably be better to cargo-cult from the NixOS wiki
-    # instead.
     overlays = [
       (final: prev: {
         ccacheWrapper = prev.ccacheWrapper.override {
           extraConfig = ''
             export CCACHE_COMPRESS=1
-            export CCACHE_DIR="/var/cache/ccache"
+            export CCACHE_DIR="/nix/var/cache/ccache"
             export CCACHE_UMASK=007
             if [ ! -d "$CCACHE_DIR" ]; then
               echo "====="
