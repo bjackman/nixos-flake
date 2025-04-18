@@ -8,48 +8,49 @@
   };
 
   outputs = inputs@{ self, nixpkgs, kernel }:
-    let pkgs = import nixpkgs {
-      system = "x86_64-linux";
-      # Configure ccache. I believe this is configuring something which nixpkgs
-      # will set up as ccacheStdenv. You could configure this to be used for _all_
-      # NixOS packages with this in a NixOS config module:
-      # config = { replaceStdenv = { pkgs }: pkgs.ccacheStdenv; };
-      #
-      # But, that's a bad idea since you then lose the remote shared cache, plus
-      # some builds seem to be incompatible with it and they fail.
-      # How to actually apply the ccacheStdenv is a little confusing. See my notes
-      # about figuring this out here:
-      # https://discourse.nixos.org/t/help-using-ccache-for-kernel-build/63010
-      overlays = [
-        (final: prev: {
-          ccacheWrapper = prev.ccacheWrapper.override {
-            extraConfig = ''
-              export CCACHE_COMPRESS=1
-              export CCACHE_DIR="/nix/var/cache/ccache"
-              export CCACHE_UMASK=007
-              if [ ! -d "$CCACHE_DIR" ]; then
-                echo "====="
-                echo "Directory '$CCACHE_DIR' does not exist"
-                echo "Please create it with:"
-                echo "  sudo mkdir -p -m0770 '$CCACHE_DIR'"
-                echo "  sudo chown root:nixbld '$CCACHE_DIR'"
-                echo "Then add 'extra-sandbox-paths = $CCACHE_DIR' to /etc/nix/nix.conf"
-                echo "Then 'sudo systemctl restart nix-daemon'"
-                echo "====="
-                exit 1
-              fi
-              if [ ! -w "$CCACHE_DIR" ]; then
-                echo "====="
-                echo "Directory '$CCACHE_DIR' is not accessible for user $(whoami)"
-                echo "Please verify its access permissions"
-                echo "====="
-                exit 1
-              fi
-            '';
-          };
-        })
-      ];
-    };
+    let
+      pkgs = import nixpkgs {
+        system = "x86_64-linux";
+        # Configure ccache. I believe this is configuring something which nixpkgs
+        # will set up as ccacheStdenv. You could configure this to be used for _all_
+        # NixOS packages with this in a NixOS config module:
+        # config = { replaceStdenv = { pkgs }: pkgs.ccacheStdenv; };
+        #
+        # But, that's a bad idea since you then lose the remote shared cache, plus
+        # some builds seem to be incompatible with it and they fail.
+        # How to actually apply the ccacheStdenv is a little confusing. See my notes
+        # about figuring this out here:
+        # https://discourse.nixos.org/t/help-using-ccache-for-kernel-build/63010
+        overlays = [
+          (final: prev: {
+            ccacheWrapper = prev.ccacheWrapper.override {
+              extraConfig = ''
+                export CCACHE_COMPRESS=1
+                export CCACHE_DIR="/nix/var/cache/ccache"
+                export CCACHE_UMASK=007
+                if [ ! -d "$CCACHE_DIR" ]; then
+                  echo "====="
+                  echo "Directory '$CCACHE_DIR' does not exist"
+                  echo "Please create it with:"
+                  echo "  sudo mkdir -p -m0770 '$CCACHE_DIR'"
+                  echo "  sudo chown root:nixbld '$CCACHE_DIR'"
+                  echo "Then add 'extra-sandbox-paths = $CCACHE_DIR' to /etc/nix/nix.conf"
+                  echo "Then 'sudo systemctl restart nix-daemon'"
+                  echo "====="
+                  exit 1
+                fi
+                if [ ! -w "$CCACHE_DIR" ]; then
+                  echo "====="
+                  echo "Directory '$CCACHE_DIR' is not accessible for user $(whoami)"
+                  echo "Please verify its access permissions"
+                  echo "====="
+                  exit 1
+                fi
+              '';
+            };
+          })
+        ];
+      };
     in {
       nixosConfigurations = {
         # Configuration intended for the big chungus in the office on my desk-area-network.
