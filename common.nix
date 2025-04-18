@@ -1,4 +1,4 @@
-{ config, lib, pkgs, modulesPath, ... }:
+{ config, lib, pkgs, modulesPath, inputs, ... }:
 
 {
   boot = {
@@ -8,17 +8,7 @@
     };
     kernelPackages = pkgs.linuxPackages_custom {
       version = "6.14";
-      # This vs nixpkgs.fetchgit?? No fucking idea. This one is documented,
-      # fetchgit isn't really. And this doesn't seem to require you to
-      # pointlessly specify a hash of the contents.
-      src = builtins.fetchGit {
-        url = "https://github.com/torvalds/linux.git";
-        # url = "https://github.com/googleprodkernel/linux-kvm.git";
-        # ref = "asi-rfcv2-preview";
-        ref = "refs/tags/v6.14";
-        rev = "38fec10eb60d687e30c8c6b5420d86e8149f7557";
-        shallow = true;
-      };
+      src = inputs.kernel;
       # TODO: I wanna set stdenv = pkgs.ccacheStdenv. Ultimately the definition
       # of the thing we're using here does allow doing that (see
       # manual-config.nix in nixpkgs), but the wrapper functions

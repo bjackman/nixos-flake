@@ -1,7 +1,13 @@
 {
-  inputs = { nixpkgs = { url = "github:nixos/nixpkgs/nixos-unstable"; }; };
+  inputs = {
+    nixpkgs = { url = "github:nixos/nixpkgs/nixos-unstable"; };
+    kernel = {
+      url = "github:torvalds/linux?ref=v6.14";
+      flake = false;
+    };
+  };
 
-  outputs = inputs@{ self, nixpkgs }:
+  outputs = inputs@{ self, nixpkgs, kernel }:
     let pkgs = import nixpkgs {
       system = "x86_64-linux";
       # Configure ccache. I believe this is configuring something which nixpkgs

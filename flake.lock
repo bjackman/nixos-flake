@@ -1,5 +1,22 @@
 {
   "nodes": {
+    "kernel": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1742824961,
+        "narHash": "sha256-5Fkx6y9eEKuQVbDkYh3lxFQrXCK4QJkAZcIabj0q/YQ=",
+        "owner": "torvalds",
+        "repo": "linux",
+        "rev": "38fec10eb60d687e30c8c6b5420d86e8149f7557",
+        "type": "github"
+      },
+      "original": {
+        "owner": "torvalds",
+        "ref": "v6.14",
+        "repo": "linux",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1744463964,
@@ -18,6 +35,7 @@
     },
     "root": {
       "inputs": {
+        "kernel": "kernel",
         "nixpkgs": "nixpkgs"
       }
     }
