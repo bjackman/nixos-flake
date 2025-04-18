@@ -17,6 +17,7 @@
         # ref = "asi-rfcv2-preview";
         ref = "refs/tags/v6.14";
         rev = "38fec10eb60d687e30c8c6b5420d86e8149f7557";
+        shallow = true;
       };
       # TODO: I wanna set stdenv = pkgs.ccacheStdenv. Ultimately the definition
       # of the thing we're using here does allow doing that (see
