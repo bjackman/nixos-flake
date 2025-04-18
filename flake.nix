@@ -97,12 +97,26 @@
           "${name}-base" = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             modules = [ ./common.nix ./${name}.nix ];
-            specialArgs = { kernelPackages = kernelPackages.v6_14; };
+            specialArgs = {
+              kernelPackages = kernelPackages.v6_14;
+              kernelParams = [ ];
+            };
           };
           "${name}-asi-off" = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             modules = [ ./common.nix ./${name}.nix ];
-            specialArgs = { kernelPackages = kernelPackages.asi-rfcv2; };
+            specialArgs = {
+              kernelPackages = kernelPackages.asi-rfcv2;
+              kernelParams = [ ];
+            };
+          };
+          "${name}-asi-on" = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            modules = [ ./common.nix ./${name}.nix ];
+            specialArgs = {
+              kernelPackages = kernelPackages.asi-rfcv2;
+              kernelParams = [ "asi=on" ];
+            };
           };
         };
         # "aethlered" is intended for the big chungus in the office on my

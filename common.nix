@@ -1,4 +1,4 @@
-{ config, lib, pkgs, modulesPath, kernelPackages, ... }:
+{ config, lib, pkgs, modulesPath, kernelPackages, kernelParams, ... }:
 {
   boot = {
     loader = {
@@ -6,6 +6,7 @@
       efi.canTouchEfiVariables = true;
     };
     inherit kernelPackages;
+    inherit kernelParams;
     # Desperately trying to get the build to not fail because of missing
     # modules. I have deliberately disabled those modules to make the build
     # faster. But this doesn't work.
