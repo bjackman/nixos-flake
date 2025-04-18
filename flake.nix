@@ -5,7 +5,7 @@
       url = "github:torvalds/linux?ref=v6.14";
       flake = false;
     };
-    kernel-asi-rfcv2 = {
+    kernel-asi = {
       url = "github:bjackman/linux?ref=asi/rfcv2";
       flake = false;
     };
@@ -57,25 +57,29 @@
       };
     in {
       nixosConfigurations = let
-        mkNixos = { extraNixosModules, kernelSrc }:
-          nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [ ./common.nix ] ++ extraNixosModules;
-            specialArgs = { inherit kernelSrc; };
+        # This function defines a set NixOS systems for the named target, with
+        # various kernel setups. The name is used to identify the output, and
+        # also to import a NixOS module called ${name}.nix that should exist
+        # in this directory.
+        mkNixoses = name:
+          {
+            "${name}-base" = nixpkgs.lib.nixosSystem {
+              system = "x86_64-linux";
+              modules = [ ./common.nix ./${name}.nix ];
+              specialArgs = { kernelSrc = inputs.kernel-6_14; };
+            };
+            "${name}-asi-off" = nixpkgs.lib.nixosSystem {
+              system = "x86_64-linux";
+              modules = [ ./common.nix ./${name}.nix ];
+              specialArgs = { kernelSrc = inputs.kernel-asi; };
+            };
           };
-      in {
-        # Configuration intended for the big chungus in the office on my desk-area-network.
-        # Whether this approach of combining separate modules instead of using
-        # options to a single shared module is a good one... I have no idea.
-        aethelred = mkNixos {
-          extraNixosModules = [ ./aethelred.nix ];
-          kernelSrc = inputs.kernel-6_14;
-        };
-        qemu = mkNixos {
-          extraNixosModules = [ ./qemu.nix ];
-          kernelSrc = inputs.kernel-6_14;
-        };
-      };
+        in
+        # "aethlered" is intended for the big chungus in the office on my
+        # desk-area-network. Whether this approach of combining separate modules
+        # instead of using options to a single shared module is a good one... I
+        # have no idea.
+        mkNixoses "aethelred" // mkNixoses "qemu";
 
       # This lets you run `nix develop` and you get a shell with `nil` in it,
       # which is a LSP implementation for Nix. Then if you start VSCode from that
