@@ -32,7 +32,7 @@ If it isn't setup that should  give you instructions.
 You can run `qemu` in a VM like this:
 
 ```
-nix run .#nixosConfigurations.qemu.config.system.build.vm
+nix run .#nixosConfigurations.qemu-base.config.system.build.vm
 ```
 
 The details of what this does seem to be configured by a set of options under
@@ -40,6 +40,8 @@ The details of what this does seem to be configured by a set of options under
 `${modulesPath}/virtualisation/qemu-vm.nix`). For example, because I set
 `virtualisation.forwardPorts`, you can SSH into the guest with `ssh -p 2222
 localhost`.
+
+See the output of `nix flake show` for the other stuff that can be run.
 
 ## Run on HW
 
