@@ -5,13 +5,13 @@
       url = "github:torvalds/linux?ref=v6.14";
       flake = false;
     };
-    kernel-asi = {
+    kernel-asi-rfcv2 = {
       url = "github:bjackman/linux?ref=asi/rfcv2";
       flake = false;
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, kernel-6_14, kernel-asi }:
+  outputs = inputs@{ self, nixpkgs, ... }:
     let
       pkgs = import nixpkgs {
         system = "x86_64-linux";
@@ -55,6 +55,38 @@
           })
         ];
       };
+      kernelPackages = {
+        v6_14 = pkgs.linuxPackages_custom {
+          version = "6.14";
+          src = inputs.kernel-6_14;
+          # TODO: I wanna set stdenv = pkgs.ccacheStdenv. Ultimately the definition
+          # of the thing we're using here does allow doing that (see
+          # manual-config.nix in nixpkgs), but the wrapper functions
+          # (linux-kernels.nix) don't directly export that. I suspect that the
+          # callPackage mechanism will have some general way to override this, but
+          # I'm a bit too tired to understand this:
+          # https://nixos.org/guides/nix-pills/13-callpackage-design-pattern.html
+          # Gemini 2.5 gave me something that sounds kiinda plausible, but looks
+          # pretty ugly:
+          # https://g.co/gemini/share/41cb753acfd9
+          configfile = kconfigs/v6.14_nix_based.config;
+        };
+        asi-rfcv2 = pkgs.linuxPackages_custom {
+          version = "6.12";
+          src = inputs.kernel-asi-rfcv2;
+          # TODO: I wanna set stdenv = pkgs.ccacheStdenv. Ultimately the definition
+          # of the thing we're using here does allow doing that (see
+          # manual-config.nix in nixpkgs), but the wrapper functions
+          # (linux-kernels.nix) don't directly export that. I suspect that the
+          # callPackage mechanism will have some general way to override this, but
+          # I'm a bit too tired to understand this:
+          # https://nixos.org/guides/nix-pills/13-callpackage-design-pattern.html
+          # Gemini 2.5 gave me something that sounds kiinda plausible, but looks
+          # pretty ugly:
+          # https://g.co/gemini/share/41cb753acfd9
+          configfile = kconfigs/v6.12_nix_based_asi.config;
+        };
+      };
     in {
       nixosConfigurations = let
         # This function defines a set NixOS systems for the named target, with
@@ -66,12 +98,12 @@
             "${name}-base" = nixpkgs.lib.nixosSystem {
               system = "x86_64-linux";
               modules = [ ./common.nix ./${name}.nix ];
-              specialArgs = { kernelSrc = inputs.kernel-6_14; };
+              specialArgs = { kernelPackages = kernelPackages.v6_14; };
             };
             "${name}-asi-off" = nixpkgs.lib.nixosSystem {
               system = "x86_64-linux";
               modules = [ ./common.nix ./${name}.nix ];
-              specialArgs = { kernelSrc = inputs.kernel-asi; };
+              specialArgs = { kernelPackages = kernelPackages.asi-rfcv2; };
             };
           };
         in

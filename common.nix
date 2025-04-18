@@ -1,25 +1,11 @@
-{ config, lib, pkgs, modulesPath, kernelSrc, ... }:
+{ config, lib, pkgs, modulesPath, kernelPackages, ... }:
 {
   boot = {
     loader = {
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
     };
-    kernelPackages = pkgs.linuxPackages_custom {
-      version = "6.14";
-      src = kernelSrc;
-      # TODO: I wanna set stdenv = pkgs.ccacheStdenv. Ultimately the definition
-      # of the thing we're using here does allow doing that (see
-      # manual-config.nix in nixpkgs), but the wrapper functions
-      # (linux-kernels.nix) don't directly export that. I suspect that the
-      # callPackage mechanism will have some general way to override this, but
-      # I'm a bit too tired to understand this:
-      # https://nixos.org/guides/nix-pills/13-callpackage-design-pattern.html
-      # Gemini 2.5 gave me something that sounds kiinda plausible, but looks
-      # pretty ugly:
-      # https://g.co/gemini/share/41cb753acfd9
-      configfile = kconfigs/v6.14_nix_based.config;
-    };
+    inherit kernelPackages;
     # Desperately trying to get the build to not fail because of missing
     # modules. I have deliberately disabled those modules to make the build
     # faster. But this doesn't work.
