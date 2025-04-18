@@ -1,5 +1,4 @@
-{ config, lib, pkgs, modulesPath, inputs, ... }:
-
+{ config, lib, pkgs, modulesPath, kernelSrc, ... }:
 {
   boot = {
     loader = {
@@ -8,7 +7,7 @@
     };
     kernelPackages = pkgs.linuxPackages_custom {
       version = "6.14";
-      src = inputs.kernel;
+      src = kernelSrc;
       # TODO: I wanna set stdenv = pkgs.ccacheStdenv. Ultimately the definition
       # of the thing we're using here does allow doing that (see
       # manual-config.nix in nixpkgs), but the wrapper functions

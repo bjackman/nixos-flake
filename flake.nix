@@ -58,13 +58,13 @@
         aethelred = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [ ./common.nix ./aethelred.nix ];
-          specialArgs = { inherit inputs; };
+          specialArgs = { kernelSrc = inputs.kernel; };
         };
 
         qemu = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [ ./common.nix ./qemu.nix ];
-          specialArgs = { inherit inputs; };
+          specialArgs = { kernelSrc = inputs.kernel; };
         };
       };
 
