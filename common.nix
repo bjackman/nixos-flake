@@ -1,4 +1,4 @@
-{ config, lib, pkgs, modulesPath, kernelPackages, kernelParams, ... }:
+{ config, lib, pkgs, modulesPath, kernelPackages, kernelParams, customPackages, ... }:
 {
   boot = {
     loader = {
@@ -34,7 +34,7 @@
   nix.settings.trusted-users = [ "root" "@wheel" "brendan" ];
   security.sudo.wheelNeedsPassword = false;
 
-  environment.systemPackages = with pkgs; [ vim wget neofetch ];
+  environment.systemPackages = with pkgs; [ vim ] ++ customPackages;
   services.openssh.enable = true;
   networking.firewall.enable = false;
 

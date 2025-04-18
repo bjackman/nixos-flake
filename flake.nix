@@ -100,6 +100,7 @@
             specialArgs = {
               kernelPackages = kernelPackages.v6_14;
               kernelParams = [ ];
+              customPackages = [ self.packages.x86_64-linux.fio-wrapper ];
             };
           };
           "${name}-asi-off" = nixpkgs.lib.nixosSystem {
@@ -108,6 +109,7 @@
             specialArgs = {
               kernelPackages = kernelPackages.asi-rfcv2;
               kernelParams = [ ];
+              customPackages = [ self.packages.x86_64-linux.fio-wrapper ];
             };
           };
           "${name}-asi-on" = nixpkgs.lib.nixosSystem {
@@ -116,6 +118,7 @@
             specialArgs = {
               kernelPackages = kernelPackages.asi-rfcv2;
               kernelParams = [ "asi=on" ];
+              customPackages = [ self.packages.x86_64-linux.fio-wrapper ];
             };
           };
         };
@@ -177,6 +180,15 @@
         installPhase = ''
           mkdir -p "$out/bin"
           cp ./hello "$out/bin/"
+        '';
+      };
+
+      # A wrapper for fio to run a specific benchmark.
+      packages.x86_64-linux.fio-wrapper = pkgs.writeShellApplication {
+        name = "fio-wrapper";
+        runtimeInputs = [ pkgs.fio ];
+        text = ''
+          exec ${pkgs.fio}/bin/fio --name=randread --rw=randread --size=64M --blocksize=4K --directory=/tmp
         '';
       };
     };
