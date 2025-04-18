@@ -1,8 +1,8 @@
 # Flake for configuring NixOS systems
 
-This flake defines two NixOS systems, one called `base` which is just a kinda
-minimal system, and one called `aethelred` which is intended for a specific
-physical machine in my office.
+This flake defines two NixOS systems, one called `qemu` which is just a kinda
+minimal system but with somu specific setup for VM guests, and one called
+`aethelred` which is intended for a specific physical machine in my office.
 
 ## Ccache
 
@@ -29,7 +29,7 @@ If it isn't setup that should  give you instructions.
 
 ## Run in a VM
 
-You can run `base` in a VM like this:
+You can run `qemu` in a VM like this:
 
 ```
 nix run .#nixosConfigurations.qemu.config.system.build.vm
