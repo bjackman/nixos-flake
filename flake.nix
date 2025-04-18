@@ -93,25 +93,23 @@
         # various kernel setups. The name is used to identify the output, and
         # also to import a NixOS module called ${name}.nix that should exist
         # in this directory.
-        mkNixoses = name:
-          {
-            "${name}-base" = nixpkgs.lib.nixosSystem {
-              system = "x86_64-linux";
-              modules = [ ./common.nix ./${name}.nix ];
-              specialArgs = { kernelPackages = kernelPackages.v6_14; };
-            };
-            "${name}-asi-off" = nixpkgs.lib.nixosSystem {
-              system = "x86_64-linux";
-              modules = [ ./common.nix ./${name}.nix ];
-              specialArgs = { kernelPackages = kernelPackages.asi-rfcv2; };
-            };
+        mkNixoses = name: {
+          "${name}-base" = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            modules = [ ./common.nix ./${name}.nix ];
+            specialArgs = { kernelPackages = kernelPackages.v6_14; };
           };
-        in
+          "${name}-asi-off" = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            modules = [ ./common.nix ./${name}.nix ];
+            specialArgs = { kernelPackages = kernelPackages.asi-rfcv2; };
+          };
+        };
         # "aethlered" is intended for the big chungus in the office on my
         # desk-area-network. Whether this approach of combining separate modules
         # instead of using options to a single shared module is a good one... I
         # have no idea.
-        mkNixoses "aethelred" // mkNixoses "qemu";
+      in mkNixoses "aethelred" // mkNixoses "qemu";
 
       # This lets you run `nix develop` and you get a shell with `nil` in it,
       # which is a LSP implementation for Nix. Then if you start VSCode from that
