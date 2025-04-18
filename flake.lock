@@ -1,6 +1,6 @@
 {
   "nodes": {
-    "kernel": {
+    "kernel-6_14": {
       "flake": false,
       "locked": {
         "lastModified": 1742824961,
@@ -14,6 +14,23 @@
         "owner": "torvalds",
         "ref": "v6.14",
         "repo": "linux",
+        "type": "github"
+      }
+    },
+    "kernel-asi": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1736531188,
+        "narHash": "sha256-PM7wVgU2q0s+VKL6dlSvqf512MZ5XiButbKwYHZYe5g=",
+        "owner": "googleprodkernel",
+        "repo": "linux-kvm",
+        "rev": "3c5a494074062dab363b4b0aa3b3b792326b1ec3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "googleprodkernel",
+        "ref": "asi-rfcv2-preview",
+        "repo": "linux-kvm",
         "type": "github"
       }
     },
@@ -35,7 +52,8 @@
     },
     "root": {
       "inputs": {
-        "kernel": "kernel",
+        "kernel-6_14": "kernel-6_14",
+        "kernel-asi": "kernel-asi",
         "nixpkgs": "nixpkgs"
       }
     }

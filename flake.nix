@@ -1,13 +1,17 @@
 {
   inputs = {
     nixpkgs = { url = "github:nixos/nixpkgs/nixos-unstable"; };
-    kernel = {
+    kernel-6_14 = {
       url = "github:torvalds/linux?ref=v6.14";
+      flake = false;
+    };
+    kernel-asi-rfcv2 = {
+      url = "github:bjackman/linux?ref=asi/rfcv2";
       flake = false;
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, kernel }:
+  outputs = inputs@{ self, nixpkgs, kernel-6_14, kernel-asi }:
     let
       pkgs = import nixpkgs {
         system = "x86_64-linux";
@@ -65,11 +69,11 @@
         # options to a single shared module is a good one... I have no idea.
         aethelred = mkNixos {
           extraNixosModules = [ ./aethelred.nix ];
-          kernelSrc = inputs.kernel;
+          kernelSrc = inputs.kernel-6_14;
         };
         qemu = mkNixos {
           extraNixosModules = [ ./qemu.nix ];
-          kernelSrc = inputs.kernel;
+          kernelSrc = inputs.kernel-6_14;
         };
       };
 
