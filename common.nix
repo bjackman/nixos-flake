@@ -1,5 +1,6 @@
-{ config, lib, pkgs, modulesPath, kernelPackages, kernelParams, customPackages, ... }:
+{ config, lib, pkgs, modulesPath, kernelPackages, kernelParams, ... }:
 {
+  imports = [ ./fio.nix ];
   boot = {
     loader = {
       systemd-boot.enable = true;
@@ -34,7 +35,7 @@
   nix.settings.trusted-users = [ "root" "@wheel" "brendan" ];
   security.sudo.wheelNeedsPassword = false;
 
-  environment.systemPackages = with pkgs; [ vim ] ++ customPackages;
+  environment.systemPackages = with pkgs; [ vim ];
   services.openssh.enable = true;
   networking.firewall.enable = false;
 
