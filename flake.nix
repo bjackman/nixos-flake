@@ -56,6 +56,9 @@
         ];
       };
       kernelPackages = {
+        # NixOS's default kernel. This is just here so that I can work on these
+        # configs on tiny wittle waptops as it lets you avoid compiling a kernel.
+        nixos = pkgs.linuxPackages;
         v6_14 = pkgs.linuxPackages_custom {
           version = "6.14";
           src = inputs.kernel-6_14;
@@ -94,6 +97,14 @@
         # also to import a NixOS module called ${name}.nix that should exist
         # in this directory.
         mkNixoses = name: {
+          "${name}-nixos" = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            modules = [ ./common.nix ./${name}.nix ];
+            specialArgs = {
+              kernelPackages = kernelPackages.nixos;
+              kernelParams = [ ];
+            };
+          };
           "${name}-base" = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             modules = [ ./common.nix ./${name}.nix ];
