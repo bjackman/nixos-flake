@@ -77,16 +77,6 @@
         asi-rfcv2 = pkgs.linuxPackages_custom {
           version = "6.12";
           src = inputs.kernel-asi-rfcv2;
-          # TODO: I wanna set stdenv = pkgs.ccacheStdenv. Ultimately the definition
-          # of the thing we're using here does allow doing that (see
-          # manual-config.nix in nixpkgs), but the wrapper functions
-          # (linux-kernels.nix) don't directly export that. I suspect that the
-          # callPackage mechanism will have some general way to override this, but
-          # I'm a bit too tired to understand this:
-          # https://nixos.org/guides/nix-pills/13-callpackage-design-pattern.html
-          # Gemini 2.5 gave me something that sounds kiinda plausible, but looks
-          # pretty ugly:
-          # https://g.co/gemini/share/41cb753acfd9
           configfile = kconfigs/v6.12_nix_based_asi.config;
         };
       };
