@@ -13,48 +13,7 @@
 
   outputs = inputs@{ self, nixpkgs, ... }:
     let
-      pkgs = import nixpkgs {
-        system = "x86_64-linux";
-        # Configure ccache. I believe this is configuring something which nixpkgs
-        # will set up as ccacheStdenv. You could configure this to be used for _all_
-        # NixOS packages with this in a NixOS config module:
-        # config = { replaceStdenv = { pkgs }: pkgs.ccacheStdenv; };
-        #
-        # But, that's a bad idea since you then lose the remote shared cache, plus
-        # some builds seem to be incompatible with it and they fail.
-        # How to actually apply the ccacheStdenv is a little confusing. See my notes
-        # about figuring this out here:
-        # https://discourse.nixos.org/t/help-using-ccache-for-kernel-build/63010
-        overlays = [
-          (final: prev: {
-            ccacheWrapper = prev.ccacheWrapper.override {
-              extraConfig = ''
-                export CCACHE_COMPRESS=1
-                export CCACHE_DIR="/nix/var/cache/ccache"
-                export CCACHE_UMASK=007
-                if [ ! -d "$CCACHE_DIR" ]; then
-                  echo "====="
-                  echo "Directory '$CCACHE_DIR' does not exist"
-                  echo "Please create it with:"
-                  echo "  sudo mkdir -p -m0770 '$CCACHE_DIR'"
-                  echo "  sudo chown root:nixbld '$CCACHE_DIR'"
-                  echo "Then add 'extra-sandbox-paths = $CCACHE_DIR' to /etc/nix/nix.conf"
-                  echo "Then 'sudo systemctl restart nix-daemon'"
-                  echo "====="
-                  exit 1
-                fi
-                if [ ! -w "$CCACHE_DIR" ]; then
-                  echo "====="
-                  echo "Directory '$CCACHE_DIR' is not accessible for user $(whoami)"
-                  echo "Please verify its access permissions"
-                  echo "====="
-                  exit 1
-                fi
-              '';
-            };
-          })
-        ];
-      };
+      pkgs = import nixpkgs { system = "x86_64-linux"; };
       kernelPackages = {
         # NixOS's default kernel. This is just here so that I can work on these
         # configs on tiny wittle waptops as it lets you avoid compiling a kernel.
@@ -62,16 +21,6 @@
         v6_14 = pkgs.linuxPackages_custom {
           version = "6.14";
           src = inputs.kernel-6_14;
-          # TODO: I wanna set stdenv = pkgs.ccacheStdenv. Ultimately the definition
-          # of the thing we're using here does allow doing that (see
-          # manual-config.nix in nixpkgs), but the wrapper functions
-          # (linux-kernels.nix) don't directly export that. I suspect that the
-          # callPackage mechanism will have some general way to override this, but
-          # I'm a bit too tired to understand this:
-          # https://nixos.org/guides/nix-pills/13-callpackage-design-pattern.html
-          # Gemini 2.5 gave me something that sounds kiinda plausible, but looks
-          # pretty ugly:
-          # https://g.co/gemini/share/41cb753acfd9
           configfile = kconfigs/v6.14_nix_based.config;
         };
         asi-rfcv2 = pkgs.linuxPackages_custom {
@@ -155,30 +104,6 @@
               '';
             }
           }/bin/rebuild-aethelred-script";
-      };
-
-      # A hello-world build that can be used to check the ccacheStdenv, this is
-      # helpful because if it's broken the kernel build doesn't show the useful
-      # outputs.
-      packages.x86_64-linux.hello = pkgs.ccacheStdenv.mkDerivation {
-        name = "hello";
-
-        src = ./src;
-
-        buildInputs = with pkgs; [ coreutils gcc ];
-
-        # Build Phases
-        # See: https://nixos.org/nixpkgs/manual/#sec-stdenv-phases
-        configurePhase = ''
-          declare -xp
-        '';
-        buildPhase = ''
-          gcc "$src/hello.c" -o ./hello
-        '';
-        installPhase = ''
-          mkdir -p "$out/bin"
-          cp ./hello "$out/bin/"
-        '';
       };
     };
 }
