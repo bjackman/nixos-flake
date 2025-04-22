@@ -6,7 +6,7 @@ minimal system but with somu specific setup for VM guests, and one called
 
 ## Ccache
 
-NOTE: ccache is currently disabled, because:
+NOTE: ccache is currently disabled (and deleted in `7932cc9`), because:
 
 1. I was getting weird issues when using it with the basic kernel build Nix biz,
    Kbuild was complaining that it didn't support the assembler. I added some
