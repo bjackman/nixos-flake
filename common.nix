@@ -1,4 +1,4 @@
-{ config, lib, pkgs, modulesPath, kernelPackages, kernelParams, ... }:
+{ pkgs, kernelPackages, kernelParams, ... }:
 {
   imports = [ ./fio.nix ];
   boot = {
