@@ -31,49 +31,53 @@
       };
     in {
       nixosConfigurations = let
-        # This function defines a set NixOS systems for the named target, with
-        # various kernel setups. The name is used to identify the output, and
-        # also to import a NixOS module called ${name}.nix that should exist
-        # in this directory.
-        mkNixoses = name: {
-          "${name}-nixos" = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [ ./common.nix ./${name}.nix ];
-            specialArgs = {
+        # This cartesianProduct call will produce a list of attrsets, with each
+        # possible combination of the values for .kernel and .machine.
+        variants = nixpkgs.lib.cartesianProduct {
+          kernel = [
+            {
+              name = "nixos";
               kernelPackages = kernelPackages.nixos;
               kernelParams = [ ];
-            };
-          };
-          "${name}-base" = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [ ./common.nix ./${name}.nix ];
-            specialArgs = {
+            }
+            {
+              name = "base";
               kernelPackages = kernelPackages.v6_14;
               kernelParams = [ ];
-            };
-          };
-          "${name}-asi-off" = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [ ./common.nix ./${name}.nix ];
-            specialArgs = {
+            }
+            {
+              name = "asi-off";
               kernelPackages = kernelPackages.asi-rfcv2;
               kernelParams = [ ];
-            };
-          };
-          "${name}-asi-on" = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [ ./common.nix ./${name}.nix ];
-            specialArgs = {
+            }
+            {
+              name = "asi-off";
               kernelPackages = kernelPackages.asi-rfcv2;
               kernelParams = [ "asi=on" ];
-            };
+            }
+          ];
+          # "aethlered" is intended for the big chungus in the office on my
+          # desk-area-network. Whether this approach of combining separate modules
+          # instead of using options to a single shared module is a good one... I
+          # have no idea.
+          machine = [ "aethelred" "qemu" ];
+        };
+        # The inner map call will convert each of the variants into a NixOS
+        # configuration definition, so we'll have those in a list. But actually we
+        # need to output an attrset, so we convert the list into one using
+        # listToAttrs. That requires a list of attrsets with fields .name and
+        # .value.
+      in builtins.listToAttrs (map (variant: {
+        name = "${variant.machine}-${variant.kernel.name}";
+        value = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [ ./common.nix ./${variant.machine}.nix ];
+          specialArgs = {
+            kernelPackages = variant.kernel.kernelPackages;
+            kernelParams = variant.kernel.kernelParams;
           };
         };
-        # "aethlered" is intended for the big chungus in the office on my
-        # desk-area-network. Whether this approach of combining separate modules
-        # instead of using options to a single shared module is a good one... I
-        # have no idea.
-      in mkNixoses "aethelred" // mkNixoses "qemu";
+      }) variants);
 
       # This lets you run `nix develop` and you get a shell with `nil` in it,
       # which is a LSP implementation for Nix. Then if you start VSCode from that
