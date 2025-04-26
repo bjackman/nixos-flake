@@ -71,7 +71,7 @@
         name = "${variant.machine}-${variant.kernel.name}";
         value = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
-          modules = [ ./common.nix ./${variant.machine}.nix ];
+          modules = [ ./common.nix ./kernel.nix ./${variant.machine}.nix ];
           specialArgs = {
             kernelPackages = variant.kernel.kernelPackages;
             kernelParams = variant.kernel.kernelParams;
