@@ -95,7 +95,7 @@
       devShells.x86_64-linux.default =
         pkgs.mkShell { packages = with pkgs; [ nil nixfmt-classic ]; };
 
-      apps.x86_64-linux.rebuild-aethelred = {
+      apps.x86_64-linux.nixos-rebuild = {
         type = "app";
         # writeShellApplication was suggested by AI. It returns a derivation.
         # But .program needs to be a store path. AI suggested that I just
@@ -105,14 +105,15 @@
         # I dunno.
         program = "${
             pkgs.writeShellApplication {
-              name = "rebuild-aethelred-script";
+              name = "nixos-rebuild-wrapper";
               runtimeInputs = [ self pkgs.nixos-rebuild ];
               text = ''
-                HOST=''${1:-192.168.2.3}
-                nixos-rebuild switch --flake .#aethelred --target-host brendan@"$HOST" --use-remote-sudo
+                TARGET=''${1:-aethelred}
+                HOST=''${2:-192.168.2.3}
+                nixos-rebuild switch --flake ".#$TARGET" --target-host brendan@"$HOST" --use-remote-sudo
               '';
             }
-          }/bin/rebuild-aethelred-script";
+          }/bin/nixos-rebuild-wrapper";
       };
     };
 }
