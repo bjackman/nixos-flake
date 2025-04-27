@@ -93,21 +93,6 @@
       # which provides more wrappers, which lets you make this architecture
       # agnostic.
       devShells.x86_64-linux.default =
-        pkgs.mkShell { packages = with pkgs; [ nil nixfmt-classic ]; };
-
-      apps.x86_64-linux.nixos-rebuild = {
-        type = "app";
-        program = "${
-            pkgs.writeShellApplication {
-              name = "nixos-rebuild-wrapper";
-              runtimeInputs = [ self pkgs.nixos-rebuild ];
-              text = ''
-                TARGET=''${1:-aethelred}
-                HOST=''${2:-192.168.2.3}
-                nixos-rebuild switch --flake ".#$TARGET" --target-host brendan@"$HOST" --use-remote-sudo
-              '';
-            }
-          }/bin/nixos-rebuild-wrapper";
-      };
+        pkgs.mkShell { packages = with pkgs; [ nil nixfmt-classic nixos-rebuild ]; };
     };
 }

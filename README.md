@@ -61,13 +61,13 @@ You can install the configured system to `aethelred` (assuming it's at
 `192.168.2.3` and your SSH key is already installed) using:
 
 ```
-nix run .#apps.x86_64-linux.rebuild-aethelred
-```
+TODO: Document how to rebuild aethelred once I've figured it out it with the latest code.
+``` 
 
 Or, if forwarding the SSH connection to a remote host on port 8022:
 
 ```
-NIX_SSHOPTS='-p 8022' nix run .#apps.x86_64-linux.rebuild-aethelred -- localhost
+TODO: Document how to rebuild aethelred once I've figured it out it with the latest code.
 ```
 
 The configuration in use here is one that I created by starting from the default
