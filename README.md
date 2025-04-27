@@ -1,8 +1,14 @@
 # Flake for configuring NixOS systems
 
-This flake defines two NixOS systems, one called `qemu` which is just a kinda
-minimal system but with somu specific setup for VM guests, and one called
-`aethelred` which is intended for a specific physical machine in my office.
+This flake defines some NixOS systems. To see what builds are available use `nix flake show .`.
+
+There are some systems that have various kernel configurations available:
+
+- `qemu` which is just a kinda minimal system but with somu specific setup for VM guests
+
+- `aethelred` which is intended for a specific physical machine in my office.
+
+Then there is `sandy` which is intended for a Raspberry Pi.
 
 ## Ccache
 
@@ -43,7 +49,7 @@ localhost`.
 
 See the output of `nix flake show` for the other stuff that can be run.
 
-## Run on HW
+## Run on `aethelred`
 
 I installed NixOS using the installer on `aethelred`. I can then rebuild it
 according to the config in this Flake by running `nixos-rebuild` with the
@@ -67,6 +73,19 @@ NIX_SSHOPTS='-p 8022' nix run .#apps.x86_64-linux.rebuild-aethelred -- localhost
 The configuration in use here is one that I created by starting from the default
 NixOS config (which is enormous and takes ages to build) and incrementally
 stripping it down, then adding back the stuff to make QEMU work again.
+
+## Run on `sandy`
+
+`sandy` is attached to a freebie ISP router (Virgin Media). I built the SD card image with:
+
+```
+nix build .#nixosConfigurations.sandy.config.system.build.sdImage
+```
+
+This took absolutely ages, I had to compile all of NixOS for aarch64. I haven't really made any attempt to avoid that, probably it's not that hard.
+
+When I first installed it I was missing the `networking.hostName` setting and
+this seemed to prevent DHCP from working, after that it worked OK.
 
 ## Stuff I need to figure out
 
