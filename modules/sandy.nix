@@ -6,5 +6,9 @@
   # assume that this will always be built on a proper american computer
   nixpkgs.buildPlatform = "x86_64-linux";
   nixpkgs.hostPlatform = "aarch64-linux";
+
   networking.hostName = "sandy";
+
+  # Note this requires running `sudo tailscale up` on the target to set up.
+  services.tailscale.enable = true;
 }
