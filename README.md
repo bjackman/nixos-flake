@@ -83,6 +83,16 @@ This took absolutely ages, I had to compile all of NixOS for aarch64. I haven't 
 When I first installed it I was missing the `networking.hostName` setting and
 this seemed to prevent DHCP from working, after that it worked OK.
 
+To use `nixos-rebuild` you'll need the host system to be able to run aarch64
+binaries, [I don't know
+why](https://discourse.nixos.org/t/running-nixos-rebuild-across-platforms/63527),
+but it turns out this is really easy. On Ubuntu just install the
+`binfmt-support` package. Then e.g.:
+
+```
+nixos-rebuild switch --flake .#sandy --target-host 192.168.0.81 --use-remote-sudo
+```
+
 ## Stuff I need to figure out
 
 - Once I have some capability to actually read the damn code, try and stare at
