@@ -60,15 +60,11 @@ machine's disk without needing to run an installer at all.
 You can install the configured system to `aethelred` (assuming it's at
 `192.168.2.3` and your SSH key is already installed) using:
 
-```
-TODO: Document how to rebuild aethelred once I've figured it out it with the latest code.
+```sh
+# Assuming you aren't on NixOS, to get `nixos-rebuild`:
+nix develop .
+ nixos-rebuild --flake .#aethelred-base --target-host brendan@$IP --use-remote-sudo switch
 ``` 
-
-Or, if forwarding the SSH connection to a remote host on port 8022:
-
-```
-TODO: Document how to rebuild aethelred once I've figured it out it with the latest code.
-```
 
 The configuration in use here is one that I created by starting from the default
 NixOS config (which is enormous and takes ages to build) and incrementally
