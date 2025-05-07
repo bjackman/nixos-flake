@@ -51,7 +51,7 @@
               kernelParams = [ ];
             }
             {
-              name = "asi-off";
+              name = "asi-on";
               kernelPackages = kernelPackages.asi-rfcv2;
               kernelParams = [ "asi=on" ];
             }
