@@ -67,22 +67,34 @@
         # need to output an attrset, so we convert the list into one using
         # listToAttrs. That requires a list of attrsets with fields .name and
         # .value.
-      in builtins.listToAttrs (map (variant: {
-        name = "${variant.machine}-${variant.kernel.name}";
-        value = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          modules = [ ./common.nix ./kernel.nix ./${variant.machine}.nix ];
-          specialArgs = {
-            kernelPackages = variant.kernel.kernelPackages;
-            kernelParams = variant.kernel.kernelParams;
+      in builtins.listToAttrs (map (variant:
+        let name = "${variant.machine}-${variant.kernel.name}";
+        in {
+          inherit name;
+          value = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            modules = [
+              ./common.nix
+              ./kernel.nix
+              ./${variant.machine}.nix
+              {
+                # Record the version of the flake, this will then be available
+                # from the `nixos-version` command.
+                system.configurationRevision = self.rev or "dirty";
+                # This goes encoded into the /etc/os-release as VARIANT_ID=
+                system.nixos.variant_id = name;
+              }
+            ];
+            specialArgs = {
+              kernelPackages = variant.kernel.kernelPackages;
+              kernelParams = variant.kernel.kernelParams;
+            };
           };
+        }) variants) // {
+          # Raspberry Pi 4B at my mum's place
+          sandy =
+            nixpkgs.lib.nixosSystem { modules = [ ./common.nix ./sandy.nix ]; };
         };
-      }) variants) // {
-        # Raspberry Pi 4B at my mum's place
-        sandy = nixpkgs.lib.nixosSystem {
-          modules = [ ./common.nix ./sandy.nix ];
-        };
-      };
 
       # This lets you run `nix develop` and you get a shell with `nil` in it,
       # which is a LSP implementation for Nix. Then if you start VSCode from that
@@ -92,7 +104,8 @@
       # For this not to be tied to x86 you should use something like flake-utils
       # which provides more wrappers, which lets you make this architecture
       # agnostic.
-      devShells.x86_64-linux.default =
-        pkgs.mkShell { packages = with pkgs; [ nil nixfmt-classic nixos-rebuild ]; };
+      devShells.x86_64-linux.default = pkgs.mkShell {
+        packages = with pkgs; [ nil nixfmt-classic nixos-rebuild ];
+      };
     };
 }
