@@ -124,14 +124,6 @@
       };
 
       apps.x86_64-linux =  {
-        # Expose the underlying benchmarks wrapper script for running it locally
-        # for testing.
-        # TODO: This is kinda dumb, should instead just support running the
-        # script directly in a `nix develop` shell` shell
-        benchmarks-wrapper = {
-          type = "app";
-          program = "${benchmarksWrapper}/bin/benchmarks-wrapper";
-        };
         # This app is the actual main entry point of this whole tooling so this
         # does make sense to expose as an app.
         benchmark-builds = {
