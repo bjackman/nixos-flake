@@ -55,6 +55,4 @@ for build in "${ARGS_BUILD[@]}"; do
     fi
     mkdir -p "$db_result_dir"
     mv "$local_results_dir"/* "$db_result_dir"
-
-    break
 done
