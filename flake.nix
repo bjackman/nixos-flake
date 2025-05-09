@@ -35,6 +35,14 @@
       # though, we should just use nix develop to produce a shell where the
       # script works and then just support running the script directly!
       benchmarksWrapper = pkgs.callPackage ./pkgs/benchmarks-wrapper.nix { };
+      benchmarkBuildsDeps = [ pkgs.nixos-rebuild pkgs.docopts ];
+      benchmarkBuilds = pkgs.writeShellApplication {
+        name = "benchmark-builds";
+        runtimeInputs = benchmarkBuildsDeps;
+        # Shellcheck can't tell ARGS_* is set.
+        excludeShellChecks = [ "SC2154" ];
+        text = builtins.readFile ./src/benchmark-builds.sh;
+      };
     in {
       nixosConfigurations = let
         # This cartesianProduct call will produce a list of attrsets, with each
@@ -112,19 +120,11 @@
       # which provides more wrappers, which lets you make this architecture
       # agnostic.
       devShells.x86_64-linux.default = pkgs.mkShell {
-        packages = with pkgs; [ nil nixfmt-classic nixos-rebuild ];
+        packages = with pkgs; [ nil nixfmt-classic nixos-rebuild ] ++ benchmarkBuildsDeps;
       };
 
-      apps.x86_64-linux = let
-        benchmarkBuilds = pkgs.writeShellApplication {
-          name = "benchmark-builds";
-          runtimeInputs = [ pkgs.nixos-rebuild pkgs.docopts ];
-          # Shellcheck can't tell ARGS_* is set.
-          excludeShellChecks = [ "SC2154" ];
-          text = builtins.readFile ./src/benchmark-builds.sh;
-        };
-      in {
-        # Expose the underlying benchmarks wrapper script for running it locall
+      apps.x86_64-linux =  {
+        # Expose the underlying benchmarks wrapper script for running it locally
         # for testing.
         # TODO: This is kinda dumb, should instead just support running the
         # script directly in a `nix develop` shell` shell
@@ -132,6 +132,8 @@
           type = "app";
           program = "${benchmarksWrapper}/bin/benchmarks-wrapper";
         };
+        # This app is the actual main entry point of this whole tooling so this
+        # does make sense to expose as an app.
         benchmark-builds = {
           type = "app";
           program = "${benchmarkBuilds}/bin/benchmark-builds";
