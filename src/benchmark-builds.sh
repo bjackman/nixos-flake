@@ -2,18 +2,21 @@ set -eux -o pipefail
 
 DOC="
 Usage:
-    benchmark-builds HOST BUILD [BUILD...]
+    benchmark-builds [--result-db RESULT_DB] HOST BUILD [BUILD...]
     benchmark-builds --help
 
 Options:
-    -h --help  Show this screen.
-    HOST       Hostname/IP of target. All other options (port, user) hardcoded.
-    BUILD      Flake reference to use for nixos-rebuild (e.g. .#aethelred-asi-off).
+    -h --help              Show this screen.
+    --result-db RESULT_DB  Magic result database to upload to [default: ./results].
+    HOST                   Hostname/IP of target. All other options (port, user) hardcoded.
+    BUILD                  Flake reference to use for nixos-rebuild (e.g. .#aethelred-asi-off).
 "
 eval "$(docopts -G ARGS -h "$DOC" : "$@")"
 
 USER=brendan  # good user, good 2 hard code
 HOST_SSH_PORT=22
+
+RESULT_NAME=nixos-asi-benchmarks
 
 for build in "${ARGS_BUILD[@]}"; do
     nixos-rebuild --flake "$build" --target-host "$USER@$ARGS_HOST" --use-remote-sudo switch
@@ -31,10 +34,27 @@ for build in "${ARGS_BUILD[@]}"; do
         sleep 1
     done
 
+    # Run the benchmarks
     REMOTE_RESULTS_DIR=/tmp/benchmark-results
-    mkdir -p ./results
-    LOCAL_RESULTS_DIR=$(TMPDIR=./results mktemp -d)
     ssh "$USER@$ARGS_HOST" "rm -rf $REMOTE_RESULTS_DIR; mkdir $REMOTE_RESULTS_DIR"
     ssh "$USER@$ARGS_HOST" benchmarks-wrapper --out-dir "$REMOTE_RESULTS_DIR"
-    scp -r "$USER@$ARGS_HOST":"$REMOTE_RESULTS_DIR" "$LOCAL_RESULTS_DIR"
+
+    # Fetch the results
+    local_results_dir=$(mktemp -d)
+    scp -r "$USER@$ARGS_HOST":"$REMOTE_RESULTS_DIR/*" "$local_results_dir"
+
+    # Hash them and store them in the format required by my cool secret
+    # benchmarking result schema: $name:$hash.
+    # For these results we consider all the artifacts to be part of the hash
+    # input, if any file differs it must be a repeated run.
+    result_hash=$(find "$local_results_dir" -type f | xargs cat | sha256sum | awk '{ print substr($1, 1, 12) }')
+    db_result_dir="$ARGS_result_db/$RESULT_NAME:$result_hash"
+    if [ -e "$db_result_dir" ]; then
+        echo "$db_result_dir already exists!"
+        exit 1
+    fi
+    mkdir -p "$db_result_dir"
+    mv "$local_results_dir"/* "$db_result_dir"
+
+    break
 done
