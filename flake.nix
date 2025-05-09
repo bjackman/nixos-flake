@@ -115,9 +115,27 @@
         packages = with pkgs; [ nil nixfmt-classic nixos-rebuild ];
       };
 
-      apps.x86_64-linux.benchmarks-wrapper = {
-        type = "app";
-        program = "${benchmarksWrapper}/bin/benchmarks-wrapper";
+      apps.x86_64-linux = let
+        benchmarkBuilds = pkgs.writeShellApplication {
+          name = "benchmark-builds";
+          runtimeInputs = [ pkgs.nixos-rebuild pkgs.docopts ];
+          # Shellcheck can't tell ARGS_* is set.
+          excludeShellChecks = [ "SC2154" ];
+          text = builtins.readFile ./src/benchmark-builds.sh;
+        };
+      in {
+        # Expose the underlying benchmarks wrapper script for running it locall
+        # for testing.
+        # TODO: This is kinda dumb, should instead just support running the
+        # script directly in a `nix develop` shell` shell
+        benchmarks-wrapper = {
+          type = "app";
+          program = "${benchmarksWrapper}/bin/benchmarks-wrapper";
+        };
+        benchmark-builds = {
+          type = "app";
+          program = "${benchmarkBuilds}/bin/benchmark-builds";
+        };
       };
     };
 }
