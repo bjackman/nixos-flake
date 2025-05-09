@@ -46,5 +46,7 @@ writeShellApplication {
     exec fio --name=randread \
     --rw=randread --size=64M --blocksize=4K --directory=/tmp \
         --output="$OUT_DIR"/fio_output.json --output-format=json+
+
+    echo FIO results in "$OUT_DIR"/fio_output.json
   '';
 }
