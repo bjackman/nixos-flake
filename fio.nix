@@ -4,10 +4,23 @@ let
     name = "fio-wrapper";
     runtimeInputs = [ pkgs.fio ];
     text = ''
-      mkdir -p /var/spool/fio/
+      set -eux
+
+      OUT_DIR=/var/spool/fio/"$(date +%Y%m%d-%H%M%S-%N)"
+      mkdir -p "$OUT_DIR"
+
+      # We'll record the version of the system, to be as hermetic as possible,
+      # bail if there have been configuration changes since the last reboot.
+      if [ "$(readlink /run/current-system)" != "$(readlink /run/booted-system)" ]; then
+        echo "current-system not the same as booted-system, not capturing system data"
+      else
+        cp /etc/os-release "$OUT_DIR"/etc_os-release
+        nixos-version --json > "$OUT_DIR"/nixos-version.json
+      fi
+
       exec ${pkgs.fio}/bin/fio --name=randread \
         --rw=randread --size=64M --blocksize=4K --directory=/tmp \
-        --output=/var/spool/fio/"$(date +%Y%m%d-%H%M%S-%N)".json --output-format=json+
+        --output="$OUT_DIR"/fio_output.json --output-format=json+
     '';
   };
 in {
