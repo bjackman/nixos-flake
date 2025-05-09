@@ -74,9 +74,9 @@
           value = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
-              ./common.nix
-              ./kernel.nix
-              ./${variant.machine}.nix
+              ./modules/common.nix
+              ./modules/kernel.nix
+              ./modules/${variant.machine}.nix
               {
                 # Record the version of the flake, this will then be available
                 # from the `nixos-version` command.
