@@ -1,7 +1,6 @@
 # Stuff for doing kernel development.
 { kernelPackages, kernelParams, ... }:
 {
-  imports = [ ./fio.nix ];
   boot = {
     loader = {
       systemd-boot.enable = true;

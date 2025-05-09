@@ -29,6 +29,12 @@
           configfile = kconfigs/v6.12_nix_based_asi.config;
         };
       };
+      # Wrapper for running the benchmarks themselves. This needs to be
+      # available on the host target, but we also define it up here so we can
+      # expose it as an app for convenient testing. This is probably dumb
+      # though, we should just use nix develop to produce a shell where the
+      # script works and then just support running the script directly!
+      benchmarksWrapper = pkgs.callPackage ./pkgs/benchmarks-wrapper.nix { };
     in {
       nixosConfigurations = let
         # This cartesianProduct call will produce a list of attrsets, with each
@@ -83,6 +89,7 @@
                 system.configurationRevision = self.rev or "dirty";
                 # This goes encoded into the /etc/os-release as VARIANT_ID=
                 system.nixos.variant_id = name;
+                environment.systemPackages = [ benchmarksWrapper ];
               }
             ];
             specialArgs = {
@@ -108,16 +115,9 @@
         packages = with pkgs; [ nil nixfmt-classic nixos-rebuild ];
       };
 
-      apps.x86_64-linux = let
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        # Wrapper for running the benchmarks themselves. This needs to be
-        # available on the host target.
-        benchmarks-wrapper = pkgs.callPackage ./pkgs/benchmark-wrapper.nix {};
-      in {
-        benchmarks-wrapper = {
-          type = "app";
-          program = "${benchmarks-wrapper}/bin/benchmarks-wrapper";
-        };
+      apps.x86_64-linux.benchmarks-wrapper = {
+        type = "app";
+        program = "${benchmarksWrapper}/bin/benchmarks-wrapper";
       };
     };
 }
