@@ -22,7 +22,7 @@ for build in "${ARGS_BUILD[@]}"; do
     # Wait until the SSH port becomes visible.
     # -z = scan only,  -w5 = 5s timeout
     deadline_s=$(($(date +%s) + 120))
-    while ! ssh "$USER@$ARGS_HOST" echo; do
+    while ! ssh -o ConnectTimeout=5 "$USER@$ARGS_HOST" echo; do
         current_time_s=$(date +%s)
         if (( current_time_s > deadline_s )); then
             echo "Timed out after 2m waiting for host SSH port to appear"
