@@ -2,8 +2,7 @@
 writeShellApplication {
   name = "benchmarks-wrapper";
   runtimeInputs = [ pkgs.docopts pkgs.fio ];
-  excludeShellChecks =
-    [ "SC2154" "SC1091" ]; # Shellcheck can't tell ARGS_* is set.
+  excludeShellChecks = [ "SC2154" ]; # Shellcheck can't tell ARGS_* is set.
   text = ''
     DOC="
     Usage:
