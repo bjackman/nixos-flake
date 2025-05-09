@@ -48,11 +48,11 @@ for build in "${ARGS_BUILD[@]}"; do
     # For these results we consider all the artifacts to be part of the hash
     # input, if any file differs it must be a repeated run.
     result_hash=$(find "$local_results_dir" -type f -exec cat {} \; | sha256sum | awk '{ print substr($1, 1, 12) }')
-    db_result_dir="$ARGS_result_db/$RESULT_NAME:$result_hash"
-    if [ -e "$db_result_dir" ]; then
-        echo "$db_result_dir already exists!"
+    artifacts_dir="$ARGS_result_db/$RESULT_NAME:$result_hash/artifacts"
+    if [ -e "$artifacts_dir" ]; then
+        echo "$artifacts_dir already exists!"
         exit 1
     fi
-    mkdir -p "$db_result_dir"
-    mv "$local_results_dir"/* "$db_result_dir"
+    mkdir -p "$artifacts_dir"
+    mv "$local_results_dir"/* "$artifacts_dir"
 done
