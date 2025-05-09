@@ -14,7 +14,6 @@ Options:
 eval "$(docopts -G ARGS -h "$DOC" : "$@")"
 
 USER=brendan  # good user, good 2 hard code
-HOST_SSH_PORT=22
 
 RESULT_NAME=nixos-asi-benchmarks
 
@@ -36,6 +35,7 @@ for build in "${ARGS_BUILD[@]}"; do
 
     # Run the benchmarks
     REMOTE_RESULTS_DIR=/tmp/benchmark-results
+    # shellcheck disable=SC2029
     ssh "$USER@$ARGS_HOST" "rm -rf $REMOTE_RESULTS_DIR; mkdir $REMOTE_RESULTS_DIR"
     ssh "$USER@$ARGS_HOST" benchmarks-wrapper --out-dir "$REMOTE_RESULTS_DIR"
 
@@ -47,7 +47,7 @@ for build in "${ARGS_BUILD[@]}"; do
     # benchmarking result schema: $name:$hash.
     # For these results we consider all the artifacts to be part of the hash
     # input, if any file differs it must be a repeated run.
-    result_hash=$(find "$local_results_dir" -type f | xargs cat | sha256sum | awk '{ print substr($1, 1, 12) }')
+    result_hash=$(find "$local_results_dir" -type f -exec cat {} \; | sha256sum | awk '{ print substr($1, 1, 12) }')
     db_result_dir="$ARGS_result_db/$RESULT_NAME:$result_hash"
     if [ -e "$db_result_dir" ]; then
         echo "$db_result_dir already exists!"
