@@ -4,7 +4,9 @@ Usage:
     benchmark-builds --help
 
 Options:
-    -h --help              Show this screen.
+    -h --help Show this screen.
+    HOST      Host to run benchmarks on. Just the hostname/IP. Username and
+              other SSH params are hardcoded.
 "
 eval "$(docopts -G ARGS -h "$DOC" : "$@")"
 set -eux
