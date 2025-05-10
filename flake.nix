@@ -110,7 +110,7 @@
         }) variants) // {
           # Raspberry Pi 4B at my mum's place
           sandy =
-            nixpkgs.lib.nixosSystem { modules = [ ./common.nix ./sandy.nix ]; };
+            nixpkgs.lib.nixosSystem { modules = [ ./modules/common.nix ./modules/sandy.nix ]; };
         };
 
       # This lets you run `nix develop` and you get a shell with `nil` in it,
