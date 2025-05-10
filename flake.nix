@@ -127,10 +127,11 @@
       # which provides more wrappers, which lets you make this architecture
       # agnostic.
       devShells.x86_64-linux.default = pkgs.mkShell {
-        packages = with pkgs; [ nil nixfmt-classic nixos-rebuild ] ++ benchmarkBuildsDeps;
+        packages = with pkgs;
+          [ nil nixfmt-classic nixos-rebuild ] ++ benchmarkBuildsDeps;
       };
 
-      apps.x86_64-linux =  {
+      apps.x86_64-linux = {
         # This app is the actual main entry point of this whole tooling so this
         # does make sense to expose as an app.
         benchmark-builds = {
