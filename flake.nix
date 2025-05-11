@@ -44,7 +44,7 @@
         text = builtins.readFile ./src/benchmark-builds.sh;
       };
     in {
-      nixosModules.brendan = import ./modules/common.nix;
+      nixosModules.brendan = import ./modules/brendan.nix;
       nixosConfigurations = let
         # This cartesianProduct call will produce a list of attrsets, with each
         # possible combination of the values for .kernel and .machine.
