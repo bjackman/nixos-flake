@@ -2,5 +2,6 @@
 	"nix.enableLanguageServer": true,
     // These will be in your path if you run `nix develop`
 	"nix.formatterPath": "nixfmt",
-    "nix.serverPath": "nil"
+    "nix.serverPath": "nil",
+    "workbench.colorTheme": "Abyss"
 }
