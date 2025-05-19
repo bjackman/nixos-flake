@@ -9,6 +9,10 @@
       url = "github:googleprodkernel/linux-kvm?ref=asi-rfcv2-preview";
       flake = false;
     };
+    kernel-asi-page-cache-fix = {
+      url = "github:bjackman/linux?ref=asi/fix-page-cache";
+      flake = false;
+    };
   };
 
   outputs = inputs@{ self, nixpkgs, ... }:
@@ -26,6 +30,11 @@
         asi-rfcv2-preview = pkgs.linuxPackages_custom {
           version = "6.12";
           src = inputs.kernel-asi-rfcv2-preview;
+          configfile = kconfigs/v6.12_nix_based_asi.config;
+        };
+        asi-page-cache-fix = pkgs.linuxPackages_custom {
+          version = "6.12";
+          src = inputs.kernel-asi-page-cache-fix;
           configfile = kconfigs/v6.12_nix_based_asi.config;
         };
       };
@@ -62,12 +71,12 @@
             }
             {
               name = "asi-off";
-              kernelPackages = kernelPackages.asi-rfcv2-preview;
+              kernelPackages = kernelPackages.asi-page-cache-fix;
               kernelParams = [ ];
             }
             {
               name = "asi-on";
-              kernelPackages = kernelPackages.asi-rfcv2-preview;
+              kernelPackages = kernelPackages.asi-page-cache-fix;
               kernelParams = [ "asi=on" ];
             }
           ];
