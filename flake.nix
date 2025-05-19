@@ -5,8 +5,8 @@
       url = "github:torvalds/linux?ref=v6.14";
       flake = false;
     };
-    kernel-asi-rfcv2 = {
-      url = "github:bjackman/linux?ref=asi/rfcv2";
+    kernel-asi-rfcv2-preview = {
+      url = "github:googleprodkernel/linux-kvm?ref=asi-rfcv2-preview";
       flake = false;
     };
   };
@@ -23,9 +23,9 @@
           src = inputs.kernel-6_14;
           configfile = kconfigs/v6.14_nix_based.config;
         };
-        asi-rfcv2 = pkgs.linuxPackages_custom {
+        asi-rfcv2-preview = pkgs.linuxPackages_custom {
           version = "6.12";
-          src = inputs.kernel-asi-rfcv2;
+          src = inputs.kernel-asi-rfcv2-preview;
           configfile = kconfigs/v6.12_nix_based_asi.config;
         };
       };
@@ -62,12 +62,12 @@
             }
             {
               name = "asi-off";
-              kernelPackages = kernelPackages.asi-rfcv2;
+              kernelPackages = kernelPackages.asi-rfcv2-preview;
               kernelParams = [ ];
             }
             {
               name = "asi-on";
-              kernelPackages = kernelPackages.asi-rfcv2;
+              kernelPackages = kernelPackages.asi-rfcv2-preview;
               kernelParams = [ "asi=on" ];
             }
           ];

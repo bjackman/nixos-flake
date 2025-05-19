@@ -17,20 +17,20 @@
         "type": "github"
       }
     },
-    "kernel-asi-rfcv2": {
+    "kernel-asi-rfcv2-preview": {
       "flake": false,
       "locked": {
-        "lastModified": 1744980894,
-        "narHash": "sha256-4qbWmABq/GC7t0ZNY7OHp3cFHn/GkRRVLoYzzXknxqU=",
-        "owner": "bjackman",
-        "repo": "linux",
-        "rev": "0e59046a481b4f2ac362fbe6089905b176753961",
+        "lastModified": 1736531188,
+        "narHash": "sha256-PM7wVgU2q0s+VKL6dlSvqf512MZ5XiButbKwYHZYe5g=",
+        "owner": "googleprodkernel",
+        "repo": "linux-kvm",
+        "rev": "3c5a494074062dab363b4b0aa3b3b792326b1ec3",
         "type": "github"
       },
       "original": {
-        "owner": "bjackman",
-        "ref": "asi/rfcv2",
-        "repo": "linux",
+        "owner": "googleprodkernel",
+        "ref": "asi-rfcv2-preview",
+        "repo": "linux-kvm",
         "type": "github"
       }
     },
@@ -53,7 +53,7 @@
     "root": {
       "inputs": {
         "kernel-6_14": "kernel-6_14",
-        "kernel-asi-rfcv2": "kernel-asi-rfcv2",
+        "kernel-asi-rfcv2-preview": "kernel-asi-rfcv2-preview",
         "nixpkgs": "nixpkgs"
       }
     }
