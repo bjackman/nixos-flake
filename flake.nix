@@ -107,16 +107,7 @@
               kernelParams = variant.kernel.kernelParams;
             };
           };
-        }) variants) // {
-          # Raspberry Pi 4B at my mum's place
-          sandy = nixpkgs.lib.nixosSystem {
-            modules = [
-              ./modules/brendan.nix
-              ./modules/common.nix
-              ./modules/sandy.nix
-            ];
-          };
-        };
+        }) variants);
 
       # This lets you run `nix develop` and you get a shell with `nil` in it,
       # which is a LSP implementation for Nix. Then if you start VSCode from that

@@ -8,8 +8,6 @@ There are some systems that have various kernel configurations available:
 
 - `aethelred` which is intended for a specific physical machine in my office.
 
-Then there is `sandy` which is intended for a Raspberry Pi.
-
 ## Ccache
 
 NOTE: ccache is currently disabled (and deleted in `7932cc9`), because:
