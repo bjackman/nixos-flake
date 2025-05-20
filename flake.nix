@@ -45,13 +45,6 @@
       # script works and then just support running the script directly!
       benchmarksWrapper = pkgs.callPackage ./pkgs/benchmarks-wrapper.nix { };
       benchmarkBuildsDeps = [ pkgs.nixos-rebuild pkgs.docopts ];
-      benchmarkBuilds = pkgs.writeShellApplication {
-        name = "benchmark-builds";
-        runtimeInputs = benchmarkBuildsDeps;
-        # Shellcheck can't tell ARGS_* is set.
-        excludeShellChecks = [ "SC2154" ];
-        text = builtins.readFile ./src/benchmark-builds.sh;
-      };
     in {
       nixosModules.brendan = import ./modules/brendan.nix;
       nixosConfigurations = let
@@ -129,6 +122,16 @@
           };
         }) variants);
 
+      packages.x86_64-linux = {
+        benchmarkBuilds = pkgs.writeShellApplication {
+          name = "benchmark-builds";
+          runtimeInputs = benchmarkBuildsDeps;
+          # Shellcheck can't tell ARGS_* is set.
+          excludeShellChecks = [ "SC2154" ];
+          text = builtins.readFile ./src/benchmark-builds.sh;
+        };
+      };
+
       # This lets you run `nix develop` and you get a shell with `nil` in it,
       # which is a LSP implementation for Nix. Then if you start VSCode from that
       # shell, and you have something like the Nix IDE plugin, you can do
@@ -147,7 +150,7 @@
         # does make sense to expose as an app.
         benchmark-builds = {
           type = "app";
-          program = "${benchmarkBuilds}/bin/benchmark-builds";
+          program = "${self.packages.x86_64-linux.benchmarkBuilds}/bin/benchmark-builds";
         };
       };
     };
