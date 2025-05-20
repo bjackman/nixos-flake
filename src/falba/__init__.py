@@ -6,7 +6,7 @@ from .derivers import DERIVERS
 
 def read_db(path: pathlib.Path) -> model.Db:
     """Import a database and run all enrichers and derivers."""
-    db = Db.read_dir(pathlib.Path("./results"))
+    db = Db.read_dir(path)
     for enricher in ENRICHERS:
         db.enrich_with(enricher)
     for deriver in DERIVERS:
