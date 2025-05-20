@@ -130,6 +130,15 @@
           excludeShellChecks = [ "SC2154" ];
           text = builtins.readFile ./src/benchmark-builds.sh;
         };
+        falba = with pkgs.python3Packages;
+          buildPythonPackage {
+            pname = "falba";
+            version = "0.1.0";
+            pyproject = true;
+            src = ./src/falba;
+            build-system = [ setuptools setuptools-scm ];
+            propagatedBuildInputs = [ pandas ];
+          };
       };
 
       # This lets you run `nix develop` and you get a shell with `nil` in it,
@@ -142,7 +151,8 @@
       # agnostic.
       devShells.x86_64-linux.default = pkgs.mkShell {
         packages = with pkgs;
-          [ nil nixfmt-classic nixos-rebuild ] ++ benchmarkBuildsDeps;
+          [ nil nixfmt-classic nixos-rebuild self.packages.x86_64-linux.falba ]
+          ++ benchmarkBuildsDeps;
       };
 
       apps.x86_64-linux = {
