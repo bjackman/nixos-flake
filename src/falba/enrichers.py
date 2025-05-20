@@ -200,7 +200,7 @@ def enrich_from_bpftrace_logs(artifact: model.Artifact) -> Tuple[Sequence[model.
     if match:
       if exits_metric:
         logging.warn(f"Found two @total_exits results in {artifact.path}")
-      exits_metric = model.Metric(name="asi_exits", value=match.group(1))
+      exits_metric = model.Metric(name="asi_exits", value=int(match.group(1)))
   if exits_metric:
     metrics.append(exits_metric)
     facts.append(model.Fact(name="instrumented", value=True))
