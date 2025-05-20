@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Sequence
 from typing import Dict, List, Self, Any, Optional, Callable, Tuple
 
@@ -8,7 +9,7 @@ def derive_asi_on(result: model.Result) -> Tuple[Sequence[model.Fact], Sequence[
     kconfig = result.facts['kconfig'].value
     cmdline_fields = result.facts['cmdline_fields'].value
   except KeyError as e:
-    print(f"{result.result_id}: Couldn't derive ASI enablement: missing {e}")
+    logging.debug(f"{result.result_id}: Couldn't derive ASI enablement: missing {e}")
     return [], []
 
   asi_builtin = kconfig.get('CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION') == 'y'
@@ -35,7 +36,7 @@ def derive_retbleed_mitigation(result: model.Result) -> Tuple[Sequence[model.Fac
     asi_on = result.facts['asi_on'].value
     sysfs_mit = result.facts['sysfs_cpu_vuln:retbleed'].value
   except KeyError:
-    print(f"{result.result_id}: couldn't derive retbleed mitigation, facts:, {result.facts.keys()}")
+    logging.debug(f"{result.result_id}: couldn't derive retbleed mitigation, facts:, {result.facts.keys()}")
     return [], []
 
   if not asi_on:
