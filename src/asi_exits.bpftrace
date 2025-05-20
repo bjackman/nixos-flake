@@ -1,0 +1,14 @@
+#!/usr/bin/env bpftrace
+
+tracepoint:asi:asi_exit_pf
+{
+    @total_exits = count();
+    @stack_counts[kstack] = count()
+}
+
+END
+{
+    printf("Total asi_exit_pf occurrences: %d\n\n", (int64) @total_exits);
+    printf("Stack trace counts:\n");
+    print(@stack_counts);
+}

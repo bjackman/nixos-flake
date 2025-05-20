@@ -112,7 +112,10 @@
                 system.configurationRevision = self.rev or "dirty";
                 # This goes encoded into the /etc/os-release as VARIANT_ID=
                 system.nixos.variant_id = name;
-                environment.systemPackages = [ benchmarksWrapper ];
+                environment.systemPackages = [
+                  benchmarksWrapper
+                  self.packages.x86_64-linux.bpftraceScripts
+                ];
               }
             ];
             specialArgs = {
@@ -139,6 +142,19 @@
             build-system = [ setuptools setuptools-scm ];
             propagatedBuildInputs = [ pandas ];
           };
+        # This creates a program called bpftrace_asi_exits that will call
+        # bpftrace with the appropriate script.
+        bpftraceScripts = pkgs.stdenv.mkDerivation {
+          pname = "bpftrace-scripts";
+          version = "0.1";
+          src = pkgs.writeScriptBin "asi_exits.bpftrace" (builtins.readFile src/asi_exits.bpftrace);
+          installPhase = ''
+          mkdir -p $out/bin
+          makeWrapper $src/bin/asi_exits.bpftrace $out/bin/bpftrace_asi_exits \
+            --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.bpftrace ]}
+          '';
+          buildInputs = [ pkgs.makeWrapper ];
+        };
       };
 
       # This lets you run `nix develop` and you get a shell with `nil` in it,
@@ -151,7 +167,11 @@
       # agnostic.
       devShells.x86_64-linux.default = pkgs.mkShell {
         packages = with pkgs;
-          [ nil nixfmt-classic nixos-rebuild self.packages.x86_64-linux.falba ]
+          [
+            nil nixfmt-classic nixos-rebuild
+            self.packages.x86_64-linux.falba
+            self.packages.x86_64-linux.bpftraceScripts
+          ]
           ++ benchmarkBuildsDeps;
       };
 

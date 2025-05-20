@@ -1,5 +1,5 @@
 # Stuff for doing kernel development.
-{ kernelPackages, kernelParams, ... }:
+{ kernelPackages, kernelParams, pkgs, ... }:
 {
   boot = {
     loader = {
