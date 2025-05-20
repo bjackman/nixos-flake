@@ -10,6 +10,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config-revision", required=True)
     parser.add_argument("--instrumented", action="store_true")
+    parser.add_argument("--metric", default="fio_randread_read_iops")
     parser.add_argument("variants", nargs="+")
     args = parser.parse_args()
 
@@ -18,9 +19,7 @@ if __name__ == "__main__":
     df = db.flat_df()
     df = df[df["nixos_configuration_revision"] == args.config_revision]
 
-    # Currently hard-coding a single metric...
-    experiment_metric = "fio_randread_read_iops"
-    df = df[df["metric"] == experiment_metric]
+    df = df[df["metric"] == args.metric]
     df = df[df["instrumented"] == args.instrumented]
 
     missing_variants = set(args.variants) - set(df["os_release_variant_id"])
@@ -29,5 +28,5 @@ if __name__ == "__main__":
     df = df[df["os_release_variant_id"].isin(args.variants)]
 
     for name, group in df.groupby("os_release_variant_id"):
-        print(f"{name:<30} mean {experiment_metric}: {group["value"].mean()}")
+        print(f"{name:<30} mean {args.metric}: {group["value"].mean()}")
         print(f"  ({", ".join(group["result_id"].unique())})")
