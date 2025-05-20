@@ -18,7 +18,7 @@ if __name__ == "__main__":
     df = df[df["nixos_configuration_revision"] == args.config_revision]
 
     # Currently hard-coding a single metric...
-    experiment_metric = "fio_randread_read_clat_ns_mean"
+    experiment_metric = "fio_randread_read_iops"
     df = df[df["metric"] == experiment_metric]
 
     missing_variants = set(args.variants) - set(df["os_release_variant_id"])

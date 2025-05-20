@@ -156,8 +156,11 @@ def enrich_from_fio_json_plus(artifact: model.Artifact) -> Tuple[Sequence[model.
 
   try:
     for job in output_obj["jobs"]:
-      metrics.append(model.Metric(name=f"fio_{job["jobname"]}_read_clat_ns_mean",
-                                  value=job["read"]["clat_ns"]["mean"]))
+      for fio_metric in ["lat_ns", "slat_ns", "clat_ns"]:
+        metrics.append(model.Metric(name=f"fio_{job["jobname"]}_read_{fio_metric}_mean",
+                                    value=job["read"]["clat_ns"]["mean"]))
+      metrics.append(model.Metric(name=f"fio_{job["jobname"]}_read_iops",
+                                  value=job["read"]["iops"]))
   except KeyError as e:
     raise EnrichmentFailure("missing field in FIO output JSON") from e
 
