@@ -10,4 +10,6 @@
 # import altair as alt
 # import numpy as np
 
-from . import model
+from .model import Db
+from .enrichers import ENRICHERS
+from .derivers import DERIVERS

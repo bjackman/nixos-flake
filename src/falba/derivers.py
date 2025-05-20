@@ -1,7 +1,9 @@
 from collections.abc import Sequence
 from typing import Dict, List, Self, Any, Optional, Callable, Tuple
 
-def derive_asi_on(result: Result) -> Tuple[Sequence[Fact], Sequence[Metric]]:
+from . import model
+
+def derive_asi_on(result: model.Result) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
   try:
     kconfig = result.facts['kconfig'].value
     cmdline_fields = result.facts['cmdline_fields'].value
@@ -26,10 +28,9 @@ def derive_asi_on(result: Result) -> Tuple[Sequence[Fact], Sequence[Metric]]:
   else:
     fact_val = 'no'
 
-  return ([Metric(name="asi_on", value=fact_val)], [])
-db.derive_with(derive_asi_on)
+  return ([model.Metric(name="asi_on", value=fact_val)], [])
 
-def derive_retbleed_mitigation(result: Result) -> Tuple[Sequence[Fact], Sequence[Metric]]:
+def derive_retbleed_mitigation(result: model.Result) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
   try:
     asi_on = result.facts['asi_on'].value
     sysfs_mit = result.facts['sysfs_cpu_vuln:retbleed'].value
@@ -44,5 +45,6 @@ def derive_retbleed_mitigation(result: Result) -> Tuple[Sequence[Fact], Sequence
   else:
     mit = "ASI"
 
-  return  ([Metric(name="retbleed_mitigation", value=mit )], [])
-db.derive_with(derive_retbleed_mitigation)
+  return  ([model.Metric(name="retbleed_mitigation", value=mit )], [])
+
+DERIVERS = [derive_asi_on, derive_retbleed_mitigation]

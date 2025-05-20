@@ -6,6 +6,8 @@ import tarfile
 import os
 import datetime
 
+from . import model
+
 #
 # Here are some super hacky examples of things that might become fact/metric extraction plugins
 #
@@ -15,7 +17,7 @@ class EnrichmentFailure(Exception):
 
 # Enrichers return (facts, metrics) pairs.
 
-def enrich_from_ansible(artifact: Artifact) -> Tuple[Sequence[Fact], Sequence[Metric]]:
+def enrich_from_ansible(artifact: model.Artifact) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
   if artifact.path.name != "ansible_facts.json":
     return [], []
   try:
@@ -26,15 +28,15 @@ def enrich_from_ansible(artifact: Artifact) -> Tuple[Sequence[Fact], Sequence[Me
   facts = []
   try:
     # Ansible doesn't give us the raw commandline
-    facts.append(Metric(name="cmdline_fields", value=ansible_facts["ansible_cmdline"]))
-    facts.append(Metric(name="nproc", value=ansible_facts["ansible_processor_nproc"]))
+    facts.append(model.Metric(name="cmdline_fields", value=ansible_facts["ansible_cmdline"]))
+    facts.append(model.Metric(name="nproc", value=ansible_facts["ansible_processor_nproc"]))
     # TODO: would prefer to express this in a way that captures units.
-    facts.append(Metric(name="memory", value=ansible_facts["ansible_memtotal_mb"], unit="MB"))
+    facts.append(model.Metric(name="memory", value=ansible_facts["ansible_memtotal_mb"], unit="MB"))
     ansible_ansible_facts = ansible_facts["ansible_facts"] # wat
-    facts.append(Metric(name="kernel_version", value=ansible_ansible_facts["kernel"]))
+    facts.append(model.Metric(name="kernel_version", value=ansible_ansible_facts["kernel"]))
 
     ts = ansible_facts["ansible_date_time"]["iso8601_micro"]
-    facts.append(Metric(name="timestamp", value=datetime.datetime.fromisoformat(ts)))
+    facts.append(model.Metric(name="timestamp", value=datetime.datetime.fromisoformat(ts)))
 
     # ansible_processor seems to be a list where each consecutive 3 pairs is
     # (processor number, vendor, model)
@@ -45,7 +47,7 @@ def enrich_from_ansible(artifact: Artifact) -> Tuple[Sequence[Fact], Sequence[Me
   try:
     p = ansible_processor
     cpu_models = {int(p[i]): (p[i+1] + " " + p[i+2]) for i in range(0, len(p), 3)}
-    facts.append(Metric(name="cpu", value=" + ".join(set(cpu_models.values()))))
+    facts.append(model.Metric(name="cpu", value=" + ".join(set(cpu_models.values()))))
 
   except Exception as e:
     raise EnrichmentFailure("failed to parse ansible_processor mess") from e
@@ -55,7 +57,7 @@ def enrich_from_ansible(artifact: Artifact) -> Tuple[Sequence[Fact], Sequence[Me
   #       saying that this is an ansible fact dump and how it relates to the SUT.
   return (facts, [])
 
-def enrich_from_phoronix_json(artifact: Artifact) -> Tuple[Sequence[Fact], Sequence[Metric]]:
+def enrich_from_phoronix_json(artifact: model.Artifact) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
   if not fnmatch(artifact.path, "**/pts-results.json"):
     return {}, []
   try:
@@ -77,14 +79,14 @@ def enrich_from_phoronix_json(artifact: Artifact) -> Tuple[Sequence[Fact], Seque
         for value in subresult["raw_values"]:
           args = result["arguments"]
           scale = result["scale"]
-          metrics.append(Metric(name=f"PTS FIO [{args}] {scale}",
+          metrics.append(model.Metric(name=f"PTS FIO [{args}] {scale}",
                                 value=value,
                                 unit=result["scale"]))
   except KeyError as e:
     raise EnrichmentFailure("missing expected field in phoronix-test-suite-result.json") from e
   return {}, metrics
 
-def enrich_from_sysfs_tgz(artifact: Artifact) -> Tuple[Sequence[Fact], Sequence[Metric]]:
+def enrich_from_sysfs_tgz(artifact: model.Artifact) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
   if not fnmatch(artifact.path, "*/tmp/sysfs_cpu.tgz"):
     return {}, []
   try:
@@ -95,13 +97,13 @@ def enrich_from_sysfs_tgz(artifact: Artifact) -> Tuple[Sequence[Fact], Sequence[
               continue
             content = tar.extractfile(member).read().decode('utf-8')
             # tar is too clever and gets confused by sysfs files, strip of the NULs it adds
-            facts.append(Metric(name=f"sysfs_cpu_vuln:{os.path.basename(member.name)}", value=content.strip('\0').strip()))
+            facts.append(model.Metric(name=f"sysfs_cpu_vuln:{os.path.basename(member.name)}", value=content.strip('\0').strip()))
     return facts, []
   except Exception as e:
     raise EnrichmentFailure() from e
 
 # TODO: Should each kconfig actually be a separate fact? Maybe facts shoudl inherently be nesting...
-def enrich_from_kconfig(artifact: Artifact) -> Tuple[Sequence[Fact], Sequence[Metric]]:
+def enrich_from_kconfig(artifact: model.Artifact) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
   if not fnmatch(artifact.path, "*/kconfig"):
     return {}, []
   kconfig_dict = {}
@@ -113,7 +115,7 @@ def enrich_from_kconfig(artifact: Artifact) -> Tuple[Sequence[Fact], Sequence[Me
       kconfig_dict[k] = v
     except Exception as e:
       raise EnrichmentFailure(f"failed to parse kconfig line: {line}") from e
-  return [Metric(name="kconfig", value=kconfig_dict)], []
+  return [model.Metric(name="kconfig", value=kconfig_dict)], []
 
 ENRICHERS = [
     enrich_from_ansible, enrich_from_phoronix_json, enrich_from_sysfs_tgz,
