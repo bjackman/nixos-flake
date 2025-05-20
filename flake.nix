@@ -160,7 +160,8 @@
         # does make sense to expose as an app.
         benchmark-builds = {
           type = "app";
-          program = "${self.packages.x86_64-linux.benchmarkBuilds}/bin/benchmark-builds";
+          program =
+            "${self.packages.x86_64-linux.benchmarkBuilds}/bin/benchmark-builds";
         };
       };
     };
