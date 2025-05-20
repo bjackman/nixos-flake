@@ -48,4 +48,10 @@ def derive_retbleed_mitigation(result: model.Result) -> Tuple[Sequence[model.Fac
 
   return  ([model.Metric(name="retbleed_mitigation", value=mit )], [])
 
-DERIVERS = [derive_asi_on, derive_retbleed_mitigation]
+# Hack to implement a fact with a "default value" of False.
+def derive_default_instrumented(result: model.Result) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
+  if result.facts.get("instrumented"):
+    return ([], [])
+  return ([model.Fact(name="instrumented", value=False)], [])
+
+DERIVERS = [derive_asi_on, derive_retbleed_mitigation, derive_default_instrumented]

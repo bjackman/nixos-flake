@@ -4,6 +4,7 @@ import json
 from fnmatch import fnmatch
 import tarfile
 import os
+import re
 import shlex
 import datetime
 
@@ -185,9 +186,29 @@ def enrich_from_nixos_version_json(artifact: model.Artifact) -> Tuple[Sequence[m
 
   return facts, metrics
 
+# Parses results of bpftrace progrogs included in my benchmarking repo.
+def enrich_from_bpftrace_logs(artifact: model.Artifact) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
+  if not fnmatch(artifact.path, "*/bpftrace_asi_exits.log"):
+    return {}, []
+
+  facts, metrics = [], []
+
+  exits_metric = None
+  pattern = r"@total_exits:\s+(\d+)"
+  for line in artifact.content().decode().splitlines():
+    match = re.search(pattern, line)
+    if match:
+      if exits_metric:
+        logging.warn(f"Found two @total_exits results in {artifact.path}")
+      exits_metric = model.Metric(name="asi_exits", value=match.group(1))
+  if exits_metric:
+    metrics.append(exits_metric)
+    facts.append(model.Fact(name="instrumented", value=True))
+
+  return facts, metrics
 
 ENRICHERS = [
     enrich_from_ansible, enrich_from_phoronix_json, enrich_from_sysfs_tgz,
     enrich_from_kconfig, enrich_from_os_release, enrich_from_fio_json_plus,
-    enrich_from_nixos_version_json
+    enrich_from_nixos_version_json, enrich_from_bpftrace_logs,
 ]

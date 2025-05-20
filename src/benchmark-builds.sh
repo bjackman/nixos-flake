@@ -2,11 +2,12 @@ set -eux -o pipefail
 
 DOC="
 Usage:
-    benchmark-builds [--result-db RESULT_DB] HOST BUILD [BUILD...]
+    benchmark-builds [--result-db RESULT_DB] [--instrument] HOST BUILD [BUILD...]
     benchmark-builds --help
 
 Options:
     -h --help              Show this screen.
+    --instrument           Run instrumentation for these benchmarks
     --result-db RESULT_DB  Magic result database to upload to [default: ./results].
     HOST                   Hostname/IP of target. All other options (port, user) hardcoded.
     BUILD                  Flake reference to use for nixos-rebuild (e.g. .#aethelred-asi-off).
@@ -37,7 +38,11 @@ for build in "${ARGS_BUILD[@]}"; do
     REMOTE_RESULTS_DIR=/tmp/benchmark-results
     # shellcheck disable=SC2029
     ssh "$USER@$ARGS_HOST" "rm -rf $REMOTE_RESULTS_DIR; mkdir $REMOTE_RESULTS_DIR"
-    ssh "$USER@$ARGS_HOST" benchmarks-wrapper --out-dir "$REMOTE_RESULTS_DIR"
+    cmd="benchmarks-wrapper --out-dir $REMOTE_RESULTS_DIR"
+    if "$ARGS_instrument"; then
+        cmd="$cmd --instrument"
+    fi
+    ssh "$USER@$ARGS_HOST" "$cmd"
 
     # Fetch the results
     local_results_dir=$(mktemp -d)

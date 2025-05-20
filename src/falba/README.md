@@ -12,5 +12,6 @@ TODO:
   - How should we make facts "type safe" but also flexible?
   - How can we avoid some sort of silly implicit assumption that "facts" all
     describe a single "entity"?
+  - The "instrumented" fact has a "default value", I guess this is useful...
 - Add pylint/pyfmt/type checker/etc
 - Add some tests

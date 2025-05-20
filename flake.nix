@@ -119,7 +119,7 @@
           };
         }) variants);
 
-      packages.x86_64-linux = {
+      packages.x86_64-linux = rec {
         #
         # Packages for use on the development host. Arguably defining these as
         # pacakges is pointless, we can probably just use them directly from the
@@ -164,7 +164,7 @@
         # Wrapper for actually running the benchmarks.
         benchmarksWrapper = pkgs.writeShellApplication {
           name = "benchmarks-wrapper";
-          runtimeInputs = [ pkgs.docopts pkgs.fio ];
+          runtimeInputs = [ bpftraceScripts pkgs.docopts pkgs.fio ];
           excludeShellChecks = [ "SC2154" ]; # Shellcheck can't tell ARGS_* is set.
           text = builtins.readFile ./src/benchmarks-wrapper.sh;
         };
