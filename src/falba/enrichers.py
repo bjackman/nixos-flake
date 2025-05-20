@@ -4,6 +4,7 @@ import json
 from fnmatch import fnmatch
 import tarfile
 import os
+import shlex
 import datetime
 
 from . import model
@@ -117,7 +118,73 @@ def enrich_from_kconfig(artifact: model.Artifact) -> Tuple[Sequence[model.Fact],
       raise EnrichmentFailure(f"failed to parse kconfig line: {line}") from e
   return [model.Metric(name="kconfig", value=kconfig_dict)], []
 
+# Reads an /etc/os_release file. Does this selectively...
+def enrich_from_os_release(artifact: model.Artifact) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
+  if not fnmatch(artifact.path, "*/etc_os-release"):
+    return {}, []
+
+  fields = {}
+  for line in artifact.content().decode().splitlines():
+    if not line.strip() or line.startswith("#"):
+      continue
+    k, v = line.split("=", maxsplit=1)
+    parts = shlex.split(v)
+    if len(parts) != 1:
+      raise EnrichmentFailure(f"Seems like an invalid /etc/os-release line (shlex found: {parts}): line")
+    fields[k] = parts[0]
+
+  facts, metrics = [], []
+  if "VARIANT_ID" in fields:
+    facts.append(model.Fact(name="os_release_variant_id", value=fields["VARIANT_ID"]))
+
+  return facts, metrics
+
+# TODO: make the JSON-reading enrichers less boilerplatey
+
+# Reads selected metrics from the output of the FIO benchmark with --output-format=json+
+# (Maybe also without the plus, not sure).
+def enrich_from_fio_json_plus(artifact: model.Artifact) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
+  if not fnmatch(artifact.path, "*/fio_output.json"):
+    return {}, []
+
+  try:
+    output_obj = json.loads(artifact.content())
+  except json.decoder.JSONDecodeError as e:
+    raise EnrichmentFailure() from e
+
+  facts, metrics = [], []
+
+  try:
+    for job in output_obj["jobs"]:
+      metrics.append(model.Metric(name=f"fio_{job["jobname"]}_read_clat_ns_mean",
+                                  value=job["read"]["clat_ns"]["mean"]))
+  except KeyError as e:
+    raise EnrichmentFailure("missing field in FIO output JSON") from e
+
+  return facts, metrics
+
+# Reads output of `nixos-version --json`
+def enrich_from_nixos_version_json(artifact: model.Artifact) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
+  if not fnmatch(artifact.path, "*/nixos-version.json"):
+    return {}, []
+
+  try:
+    obj = json.loads(artifact.content())
+  except json.decoder.JSONDecodeError as e:
+    raise EnrichmentFailure() from e
+
+  facts, metrics = [], []
+
+  try:
+    facts.append(model.Fact(name="nixos_configuration_revision", value=obj["configurationRevision"]))
+  except KeyError as e:
+    raise EnrichmentFailure("missing field in FIO output JSON") from e
+
+  return facts, metrics
+
+
 ENRICHERS = [
     enrich_from_ansible, enrich_from_phoronix_json, enrich_from_sysfs_tgz,
-    enrich_from_kconfig,
+    enrich_from_kconfig, enrich_from_os_release, enrich_from_fio_json_plus,
+    enrich_from_nixos_version_json
 ]
