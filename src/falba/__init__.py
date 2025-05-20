@@ -1,15 +1,14 @@
-# from collections.abc import Sequence
-# from typing import Dict, List, Self, Any, Optional, Callable, Tuple
-# import pathlib
-# import json
-# from fnmatch import fnmatch
-# import tarfile
-# import os
-# import datetime
-# import pandas as pd
-# import altair as alt
-# import numpy as np
+import pathlib
 
 from .model import Db
 from .enrichers import ENRICHERS
 from .derivers import DERIVERS
+
+def read_db(path: pathlib.Path) -> model.Db:
+    """Import a database and run all enrichers and derivers."""
+    db = Db.read_dir(pathlib.Path("./results"))
+    for enricher in ENRICHERS:
+        db.enrich_with(enricher)
+    for deriver in DERIVERS:
+        db.derive_with(deriver)
+    return db

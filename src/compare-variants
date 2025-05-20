@@ -6,26 +6,13 @@ import pathlib
 import falba
 import falba.model
 
-def dump_result(result: falba.model.Result):
-    print(f"Result({result.test_name}:{result.result_id})")
-    print("\tfacts:")
-    for fact in result.facts.values():
-        print(f"\t\t{fact.name:<30}: {fact.value}")
-    print("\tmetrics:")
-    for metric in result.metrics:
-        print(f"\t\t{metric.name:<30}: {metric.value}")
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config-revision", required=True)
     parser.add_argument("variants", nargs="+")
     args = parser.parse_args()
 
-    db = falba.Db.read_dir(pathlib.Path("./results"))
-    for enricher in falba.ENRICHERS:
-        db.enrich_with(enricher)
-    for deriver in falba.DERIVERS:
-        db.derive_with(deriver)
+    db = falba.read_db(pathlib.Path("./results"))
 
     df = db.flat_df()
     df = df[df["nixos_configuration_revision"] == args.config_revision]
