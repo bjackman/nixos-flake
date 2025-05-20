@@ -38,13 +38,7 @@
           configfile = kconfigs/v6.12_nix_based_asi.config;
         };
       };
-      # Wrapper for running the benchmarks themselves. This needs to be
-      # available on the host target, but we also define it up here so we can
-      # expose it as an app for convenient testing. This is probably dumb
-      # though, we should just use nix develop to produce a shell where the
-      # script works and then just support running the script directly!
-      benchmarksWrapper = pkgs.callPackage ./pkgs/benchmarks-wrapper.nix { };
-      benchmarkBuildsDeps = [ pkgs.nixos-rebuild pkgs.docopts ];
+      benchmarkBuildsDeps = [ pkgs.docopts ];
     in {
       nixosModules.brendan = import ./modules/brendan.nix;
       nixosConfigurations = let
@@ -113,7 +107,7 @@
                 # This goes encoded into the /etc/os-release as VARIANT_ID=
                 system.nixos.variant_id = name;
                 environment.systemPackages = [
-                  benchmarksWrapper
+                  self.packages.x86_64-linux.benchmarksWrapper
                   self.packages.x86_64-linux.bpftraceScripts
                 ];
               }
@@ -126,6 +120,12 @@
         }) variants);
 
       packages.x86_64-linux = {
+        #
+        # Packages for use on the development host. Arguably defining these as
+        # pacakges is pointless, we can probably just use them directly from the
+        # devShell. But this keeps the flake from getting too weird I think...
+        #
+
         benchmarkBuilds = pkgs.writeShellApplication {
           name = "benchmark-builds";
           runtimeInputs = benchmarkBuildsDeps;
@@ -142,6 +142,12 @@
             build-system = [ setuptools setuptools-scm ];
             propagatedBuildInputs = [ pandas ];
           };
+
+
+        #
+        # Packages intendedf for use on the target.
+        #
+
         # This creates a program called bpftrace_asi_exits that will call
         # bpftrace with the appropriate script.
         bpftraceScripts = pkgs.stdenv.mkDerivation {
@@ -154,6 +160,13 @@
             --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.bpftrace ]}
           '';
           buildInputs = [ pkgs.makeWrapper ];
+        };
+        # Wrapper for actually running the benchmarks.
+        benchmarksWrapper = pkgs.writeShellApplication {
+          name = "benchmarks-wrapper";
+          runtimeInputs = [ pkgs.docopts pkgs.fio ];
+          excludeShellChecks = [ "SC2154" ]; # Shellcheck can't tell ARGS_* is set.
+          text = builtins.readFile ./src/benchmarks-wrapper.sh;
         };
       };
 
