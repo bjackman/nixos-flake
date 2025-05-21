@@ -17,6 +17,23 @@
         "type": "github"
       }
     },
+    "kernel-asi-modules-fix": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1747828744,
+        "narHash": "sha256-tGszJhiHzJwmTKWA9pAjyghJQX9lQGy0HZubHI3y1WQ=",
+        "owner": "bjackman",
+        "repo": "linux",
+        "rev": "7a169c3e4891ffd68ea8bac21aea1f2b61be6a87",
+        "type": "github"
+      },
+      "original": {
+        "owner": "bjackman",
+        "ref": "asi/fix-modules",
+        "repo": "linux",
+        "type": "github"
+      }
+    },
     "kernel-asi-page-cache-fix": {
       "flake": false,
       "locked": {
@@ -70,6 +87,7 @@
     "root": {
       "inputs": {
         "kernel-6_14": "kernel-6_14",
+        "kernel-asi-modules-fix": "kernel-asi-modules-fix",
         "kernel-asi-page-cache-fix": "kernel-asi-page-cache-fix",
         "kernel-asi-rfcv2-preview": "kernel-asi-rfcv2-preview",
         "nixpkgs": "nixpkgs"

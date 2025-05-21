@@ -13,6 +13,10 @@
       url = "github:bjackman/linux?ref=asi/fix-page-cache";
       flake = false;
     };
+    kernel-asi-modules-fix = {
+      url = "github:bjackman/linux?ref=asi/fix-modules";
+      flake = false;
+    };
   };
 
   outputs = inputs@{ self, nixpkgs, ... }:
@@ -35,6 +39,11 @@
         asi-page-cache-fix = pkgs.linuxPackages_custom {
           version = "6.12";
           src = inputs.kernel-asi-page-cache-fix;
+          configfile = kconfigs/v6.12_nix_based_asi.config;
+        };
+        asi-modules-fix = pkgs.linuxPackages_custom {
+          version = "6.12";
+          src = inputs.kernel-asi-modules-fix;
           configfile = kconfigs/v6.12_nix_based_asi.config;
         };
       };
@@ -73,6 +82,13 @@
             {
               name = "asi-page-cache-fix";
               kernelPackages = kernelPackages.asi-page-cache-fix;
+              # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
+              # For newer kernels instead use setcpuid.
+              kernelParams = [ "nokaslr" "mitigations=off" "asi=on" "force_cpu_bug=retbleed" ];
+            }
+            {
+              name = "asi-modules-fix";
+              kernelPackages = kernelPackages.asi-modules-fix;
               # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
               # For newer kernels instead use setcpuid.
               kernelParams = [ "nokaslr" "mitigations=off" "asi=on" "force_cpu_bug=retbleed" ];
