@@ -17,7 +17,7 @@
   nix.settings.trusted-users = [ "root" "@wheel" "brendan" ];
   security.sudo.wheelNeedsPassword = false;
 
-  environment.systemPackages = with pkgs; [ vim ];
+  environment.systemPackages = with pkgs; [ vim file ];
   services.openssh.enable = true;
   networking.firewall.enable = false;
 }
