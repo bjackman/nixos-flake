@@ -32,4 +32,6 @@
     in ''
       ln -s "${kernelBuildActualPath}" $out/kernel-build
     '';
+
+  services.getty.autologinUser = "root";
 }
