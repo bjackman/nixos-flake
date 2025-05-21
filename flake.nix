@@ -70,28 +70,28 @@
               kernelPackages = kernelPackages.asi-rfcv2-preview;
               # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
               # For newer kernels instead use setcpuid.
-              kernelParams = [ "nokaslr" "mitigations=off" "force_cpu_bug=retbleed" ];
+              kernelParams = [ "nopcid" "nokaslr" "mitigations=off" "force_cpu_bug=retbleed" ];
             }
             {
               name = "asi-on";
               kernelPackages = kernelPackages.asi-rfcv2-preview;
               # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
               # For newer kernels instead use setcpuid.
-              kernelParams = [ "nokaslr" "mitigations=off" "asi=on" "force_cpu_bug=retbleed" ];
+              kernelParams = [ "nopcid" "nokaslr" "mitigations=off" "asi=on" "force_cpu_bug=retbleed" ];
             }
             {
               name = "asi-page-cache-fix";
               kernelPackages = kernelPackages.asi-page-cache-fix;
               # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
               # For newer kernels instead use setcpuid.
-              kernelParams = [ "nokaslr" "mitigations=off" "asi=on" "force_cpu_bug=retbleed" ];
+              kernelParams = [ "nopcid" "nokaslr" "mitigations=off" "asi=on" "force_cpu_bug=retbleed" ];
             }
             {
               name = "asi-modules-fix";
               kernelPackages = kernelPackages.asi-modules-fix;
               # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
               # For newer kernels instead use setcpuid.
-              kernelParams = [ "nokaslr" "mitigations=off" "asi=on" "force_cpu_bug=retbleed" ];
+              kernelParams = [ "nopcid" "nokaslr" "mitigations=off" "asi=on" "force_cpu_bug=retbleed" ];
             }
           ];
           # "aethlered" is intended for the big chungus in the office on my
