@@ -18,4 +18,6 @@
     };
   };
   hardware.enableAllHardware = false;
+
+  environment.systemPackages = [ pkgs.bpftrace ];
 }
