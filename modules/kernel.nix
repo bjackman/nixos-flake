@@ -3,7 +3,11 @@
 {
   boot = {
     loader = {
-      systemd-boot.enable = true;
+      systemd-boot = {
+        enable = true;
+        # Try to stop /boot getting full
+        configurationLimit = 8;
+      };
       efi.canTouchEfiVariables = true;
     };
     inherit kernelPackages;
