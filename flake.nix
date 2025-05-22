@@ -134,12 +134,12 @@
         # devShell. But this keeps the flake from getting too weird I think...
         #
 
-        benchmarkBuilds = pkgs.writeShellApplication {
+        benchmarkVariants = pkgs.writeShellApplication {
           name = "benchmark-builds";
           runtimeInputs = benchmarkBuildsDeps;
           # Shellcheck can't tell ARGS_* is set.
           excludeShellChecks = [ "SC2154" ];
-          text = builtins.readFile ./src/benchmark-builds.sh;
+          text = builtins.readFile ./src/benchmark-variants;
         };
         falba = with pkgs.python3Packages;
           buildPythonPackage {
@@ -199,10 +199,10 @@
       apps.x86_64-linux = {
         # This app is the actual main entry point of this whole tooling so this
         # does make sense to expose as an app.
-        benchmark-builds = {
+        benchmark-variants = {
           type = "app";
           program =
-            "${self.packages.x86_64-linux.benchmarkBuilds}/bin/benchmark-builds";
+            "${self.packages.x86_64-linux.benchmarkVariants}/bin/benchmark-variants";
         };
       };
     };

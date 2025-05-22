@@ -2,15 +2,15 @@ set -eux -o pipefail
 
 DOC="
 Usage:
-    benchmark-builds [--result-db RESULT_DB] [--instrument] HOST BUILD [BUILD...]
-    benchmark-builds --help
+    benchmark-variants [--result-db RESULT_DB] [--instrument] HOST variant [variant...]
+    benchmark-variants --help
 
 Options:
     -h --help              Show this screen.
     --instrument           Run instrumentation for these benchmarks
     --result-db RESULT_DB  Magic result database to upload to [default: ./results].
     HOST                   Hostname/IP of target. All other options (port, user) hardcoded.
-    BUILD                  Flake reference to use for nixos-rebuild (e.g. .#aethelred-asi-off).
+    variant                System variant to use for nixos-rebuild (e.g. aethelred-asi-off).
 "
 eval "$(docopts -G ARGS -h "$DOC" : "$@")"
 
@@ -18,8 +18,8 @@ USER=brendan  # good user, good 2 hard code
 
 RESULT_NAME=nixos-asi-benchmarks
 
-for build in "${ARGS_BUILD[@]}"; do
-    nixos-rebuild --flake "$build" --target-host "$USER@$ARGS_HOST" --use-remote-sudo switch
+for variant in "${ARGS_VARIANT[@]}"; do
+    nixos-rebuild --flake ".#$variant" --target-host "$USER@$ARGS_HOST" --use-remote-sudo switch
     ssh "$USER@$ARGS_HOST" sudo reboot
 
     # Wait until the SSH port becomes visible.
