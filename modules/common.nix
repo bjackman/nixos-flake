@@ -4,5 +4,9 @@
   # mystery to me.
   system.stateVersion = "24.11";
 
-  boot.loader.timeout = 2; # enspeeden tha boot
+  boot = {
+    loader.timeout = 2; # enspeeden tha boot
+
+    tmp.useTmpfs = true;
+  };
 }
