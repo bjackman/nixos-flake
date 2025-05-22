@@ -4,7 +4,7 @@ This flake defines some NixOS systems. To see what builds are available use `nix
 
 There are some systems that have various kernel configurations available:
 
-- `qemu` which is just a kinda minimal system but with somu specific setup for VM guests
+- `base` which is just a kinda minimal system but with somu specific setup for VM guests
 
 - `aethelred` which is intended for a specific physical machine in my office.
 
@@ -33,19 +33,30 @@ If it isn't setup that should  give you instructions.
 
 ## Run in a VM
 
-You can run `qemu` in a VM like this:
+You can run `base` in a VM like this:
 
 ```
-nix run .#nixosConfigurations.qemu-base.config.system.build.vm
+nix run .#nixosConfigurations.base-nixos.config.system.build.vm
 ```
-
-The details of what this does seem to be configured by a set of options under
-`virtualisation.*` (to access these I needed to import
-`${modulesPath}/virtualisation/qemu-vm.nix`). For example, because I set
-`virtualisation.forwardPorts`, you can SSH into the guest with `ssh -p 2222
-localhost`.
-
 See the output of `nix flake show` for the other stuff that can be run.
+
+### Debug the VM
+
+The script that gets run to start the VM recognizes `QEMU_OPTS` so if you set
+that to `QEMU_OPTS="-s -S"` you'll be able to attach GDB to it (`target remote
+localhost:1234`).
+
+GDB is not currently packaged into this repo I've just been using my ambient GDB
+setup for this.
+
+You can find the vmlinux with something like `nix eval
+.#nixosConfigurations.aethelred-asi-modules-fix.config.system.build.kernel.dev
+--raw`.
+
+The Nix kernel build doesn't seem to include the GDB scripts from the kernel
+tree but my workaround for that has just been to build them in a separate
+checkout of the same kernel code (`make scripts_gdb`) and then run `source
+<kernel-tree>/vmlinux-gdb.py` in the GDB prompt.
 
 ## Run on `aethelred`
 
@@ -62,34 +73,11 @@ You can install the configured system to `aethelred` (assuming it's at
 # Assuming you aren't on NixOS, to get `nixos-rebuild`:
 nix develop .
  nixos-rebuild --flake .#aethelred-base --target-host brendan@$IP --use-remote-sudo switch
-``` 
+```
 
 The configuration in use here is one that I created by starting from the default
 NixOS config (which is enormous and takes ages to build) and incrementally
 stripping it down, then adding back the stuff to make QEMU work again.
-
-## Run on `sandy`
-
-`sandy` is attached to a freebie ISP router (Virgin Media). I built the SD card image with:
-
-```
-nix build .#nixosConfigurations.sandy.config.system.build.sdImage
-```
-
-This took absolutely ages, I had to compile all of NixOS for aarch64. I haven't really made any attempt to avoid that, probably it's not that hard.
-
-When I first installed it I was missing the `networking.hostName` setting and
-this seemed to prevent DHCP from working, after that it worked OK.
-
-To use `nixos-rebuild` you'll need the host system to be able to run aarch64
-binaries, [I don't know
-why](https://discourse.nixos.org/t/running-nixos-rebuild-across-platforms/63527),
-but it turns out this is really easy. On Ubuntu just install the
-`binfmt-support` package. Then e.g.:
-
-```
-nixos-rebuild switch --flake .#sandy --target-host 192.168.0.81 --use-remote-sudo
-```
 
 ## Stuff I need to figure out
 
