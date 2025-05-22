@@ -39,6 +39,7 @@
         };
       };
       benchmarkBuildsDeps = [ pkgs.docopts ];
+      baseKernelParams = [ "nokaslr" "mitigations=off" ];
     in {
       nixosModules.brendan = import ./modules/brendan.nix;
       nixosConfigurations = let
@@ -61,21 +62,21 @@
               kernelPackages = kernelPackages.asi-rfcv2-preview;
               # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
               # For newer kernels instead use setcpuid.
-              kernelParams = [ "nokaslr" "mitigations=off" "force_cpu_bug=retbleed" ];
+              kernelParams = [ "force_cpu_bug=retbleed" ];
             }
             {
               name = "asi-on";
               kernelPackages = kernelPackages.asi-rfcv2-preview;
               # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
               # For newer kernels instead use setcpuid.
-              kernelParams = [ "nokaslr" "mitigations=off" "asi=on" "force_cpu_bug=retbleed" ];
+              kernelParams = [ "asi=on" "force_cpu_bug=retbleed" ];
             }
             {
               name = "asi-page-cache-fix";
               kernelPackages = kernelPackages.asi-page-cache-fix;
               # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
               # For newer kernels instead use setcpuid.
-              kernelParams = [ "nokaslr" "mitigations=off" "asi=on" "force_cpu_bug=retbleed" ];
+              kernelParams = [ "asi=on" "force_cpu_bug=retbleed" ];
             }
           ];
           # "aethlered" is intended for the big chungus in the office on my
@@ -121,7 +122,7 @@
             ] ++ variant.machine.modules;
             specialArgs = {
               kernelPackages = variant.kernel.kernelPackages;
-              kernelParams = variant.kernel.kernelParams;
+              kernelParams = baseKernelParams ++ variant.kernel.kernelParams;
             };
           };
         }) variants);
