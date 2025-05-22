@@ -97,7 +97,16 @@
           # "aethlered" is intended for the big chungus in the office on my
           # desk-area-network. The only thing special about it is the networking
           # setup.
-          machine = [ "aethelred" "qemu" ];
+          machine = [
+            {
+              name = "aethelred";
+              modules = [ ./modules/aethelred.nix ];
+            }
+            {
+              name = "base";
+              modules = [];
+            }
+          ];
         };
         # The inner map call will convert each of the variants into a NixOS
         # configuration definition, so we'll have those in a list. But actually we
@@ -105,7 +114,7 @@
         # listToAttrs. That requires a list of attrsets with fields .name and
         # .value.
       in builtins.listToAttrs (map (variant:
-        let name = "${variant.machine}-${variant.kernel.name}";
+        let name = "${variant.machine.name}-${variant.kernel.name}";
         in {
           inherit name;
           value = nixpkgs.lib.nixosSystem {
@@ -114,7 +123,6 @@
               ./modules/brendan.nix
               ./modules/common.nix
               ./modules/kernel.nix
-              ./modules/${variant.machine}.nix
               {
                 # Record the version of the flake, this will then be available
                 # from the `nixos-version` command.
@@ -126,7 +134,7 @@
                   self.packages.x86_64-linux.bpftraceScripts
                 ];
               }
-            ];
+            ] ++ variant.machine.modules;
             specialArgs = {
               kernelPackages = variant.kernel.kernelPackages;
               kernelParams = variant.kernel.kernelParams;
