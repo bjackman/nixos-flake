@@ -39,7 +39,7 @@
         };
       };
       benchmarkBuildsDeps = [ pkgs.docopts ];
-      baseKernelParams = [ "nokaslr" "mitigations=off" ];
+      baseKernelParams = [ "nokaslr" "mitigations=off" "init_on_alloc=0" ];
     in {
       nixosModules.brendan = import ./modules/brendan.nix;
       nixosConfigurations = let
