@@ -18,6 +18,11 @@ USER=brendan  # good user, good 2 hard code
 
 RESULT_NAME=nixos-asi-benchmarks
 
+if [ -d results-latest ]; then
+    rm -rf results-latest
+fi
+mkdir results-latest
+
 for variant in "${ARGS_VARIANT[@]}"; do
     nixos-rebuild --flake ".#$variant" --target-host "$USER@$ARGS_HOST" --use-remote-sudo switch
     # Use boot.json as a funny hack to detect if we need to reboot. I am not
@@ -61,11 +66,15 @@ EOF
     # For these results we consider all the artifacts to be part of the hash
     # input, if any file differs it must be a repeated run.
     result_hash=$(find "$local_results_dir" -type f -exec cat {} \; | sha256sum | awk '{ print substr($1, 1, 12) }')
-    artifacts_dir="$ARGS_result_db/$RESULT_NAME:$result_hash/artifacts"
+    result_id="$RESULT_NAME:$result_hash"
+    artifacts_dir="$ARGS_result_db/$result_id/artifacts"
     if [ -e "$artifacts_dir" ]; then
         echo "$artifacts_dir already exists!"
         exit 1
     fi
     mkdir -p "$artifacts_dir"
     mv "$local_results_dir"/* "$artifacts_dir"
+
+    # Store a symlink to the latest reuslts for convenient manual inspection.
+    ln -s "../results/$result_id" results-latest/$variant
 done
