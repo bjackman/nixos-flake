@@ -20,11 +20,11 @@
     "kernel-asi-modules-fix": {
       "flake": false,
       "locked": {
-        "lastModified": 1747828744,
-        "narHash": "sha256-tGszJhiHzJwmTKWA9pAjyghJQX9lQGy0HZubHI3y1WQ=",
+        "lastModified": 1747909900,
+        "narHash": "sha256-zx3mB2o2CkvazcMXcXEnQc6LfibAZxRoBhRdN+8RYqM=",
         "owner": "bjackman",
         "repo": "linux",
-        "rev": "7a169c3e4891ffd68ea8bac21aea1f2b61be6a87",
+        "rev": "1617870c141954c6148b90dfa17921adff4c8e0a",
         "type": "github"
       },
       "original": {
