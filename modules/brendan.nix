@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ modulesPath, pkgs, ... }:
 {
   time.timeZone = "Europe/Zurich";
   i18n.defaultLocale = "en_US.UTF-8";
@@ -20,5 +20,14 @@
   environment.systemPackages = with pkgs; [ vim file ];
   services.openssh.enable = true;
   networking.firewall.enable = false;
+
+  virtualisation.vmVariant.virtualisation = {
+    forwardPorts = [{
+      from = "host";
+      host.port = 2222;
+      guest.port = 22;
+    }];
+    graphics = false;
+  };
 }
 
