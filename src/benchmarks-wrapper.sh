@@ -46,12 +46,14 @@ if "$ARGS_instrument"; then
     bpftrace_pid=$!
 fi
 
-fio --name=randread \
---rw=randread --size=64M --blocksize=4K --directory=/tmp \
-    --output="$OUT_DIR"/fio_output.json --output-format=json+ --loops=5
+for i in $(seq 5); do
+    fio --name=randread \
+    --rw=randread --size=64M --blocksize=4K --directory=/tmp \
+        --output="$OUT_DIR/fio_output_$i.json" --output-format=json+
+done
 
 if "$ARGS_instrument"; then
     sudo kill -SIGINT "$bpftrace_pid"
 fi
 
-echo FIO results in "$OUT_DIR"/fio_output.json
+echo FIO results in "$OUT_DIR"

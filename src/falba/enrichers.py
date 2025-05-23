@@ -145,7 +145,7 @@ def enrich_from_os_release(artifact: model.Artifact) -> Tuple[Sequence[model.Fac
 # Reads selected metrics from the output of the FIO benchmark with --output-format=json+
 # (Maybe also without the plus, not sure).
 def enrich_from_fio_json_plus(artifact: model.Artifact) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
-  if not fnmatch(artifact.path, "*/fio_output.json"):
+  if not fnmatch(artifact.path, "*/fio_output_*.json"):
     return {}, []
 
   try:
