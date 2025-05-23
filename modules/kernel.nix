@@ -20,6 +20,7 @@
       kernelModules = [ ];
       includeDefaultModules = false;
     };
+    consoleLogLevel = 9;
   };
   hardware.enableAllHardware = false;
 
