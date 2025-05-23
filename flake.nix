@@ -78,6 +78,13 @@
               # For newer kernels instead use setcpuid.
               kernelParams = [ "asi=on" "force_cpu_bug=retbleed" ];
             }
+            {
+              name = "asi-page-cache-fix-off";
+              kernelPackages = kernelPackages.asi-page-cache-fix;
+              # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
+              # For newer kernels instead use setcpuid.
+              kernelParams = [ "asi=off" "force_cpu_bug=retbleed" ];
+            }
           ];
           # "aethlered" is intended for the big chungus in the office on my
           # desk-area-network. The only thing special about it is the networking
