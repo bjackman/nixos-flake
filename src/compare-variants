@@ -29,5 +29,6 @@ if __name__ == "__main__":
 
     for name, group in df.groupby("os_release_variant_id"):
         gv = group["value"]
-        print(f"{name:<30} mean {args.metric}: {gv.mean():>10}")
-        print(f"  ({", ".join(group["result_id"].unique())}) {len(group):>8} samples  stddev {gv.std()}")
+        # Note lazy hack to achieve alignment of mean and stddev values
+        print(f"{name:<30} mean {args.metric}: {gv.mean():>13.1f}")
+        print(f"  ({", ".join(group["result_id"].unique())}) {len(group):>8} samples  stddev {gv.std():>10.1f}")
