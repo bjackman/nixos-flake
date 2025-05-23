@@ -1,5 +1,6 @@
 nixos.qcow2
 /results/
+/results-latest
 /result
 *.qcow2
 *.fd
