@@ -24,7 +24,7 @@
   };
   hardware.enableAllHardware = false;
 
-  environment.systemPackages = [ pkgs.bpftrace ];
+  environment.systemPackages = [ pkgs.bpftrace config.boot.kernelPackages.perf ];
 
   # Make the kernel build tree visible in /run/booted-system/kernel-build.
   # Not sure if this is actually useful, there are no headers in there. But it's
