@@ -1,18 +1,35 @@
 #
-# This is an under-designed prototype for a generic data model for benchmark outputs
-#
-
+import json # Moved from Artifact.json()
 import pandas as pd
 import pathlib
+import sys
 
 from collections.abc import Sequence
-from typing import Dict, List, Self, Any, Optional, Callable, Tuple
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+from typing import Dict, List, Any, Optional, Callable, Tuple
 
 class _BaseMetric:
   def __init__(self, name: str, value: Any, unit: Optional[str] = None):
     self.name = name
     self.unit = unit
     self.value = value
+
+  def __repr__(self) -> str: 
+    return f"{self.__class__.__name__}(name={self.name!r}, value={self.value!r}, unit={self.unit!r})"
+
+  def __eq__(self, other: object) -> bool:
+    if not isinstance(other, _BaseMetric):
+      return NotImplemented
+    return (self.name == other.name and
+            type(self.value) == type(other.value) and
+            self.value == other.value and
+            self.unit == other.unit)
+
+  def __hash__(self) -> int:
+    return hash((self.name, self.value, self.unit))
 
 class Metric(_BaseMetric):
   pass
@@ -30,6 +47,7 @@ class Artifact:
       return self.path.read_bytes()
 
     def json(self) -> dict:
+      # import json # Moved to top of file
       with open(self.path, "rb") as f:
         return json.load(f)
 

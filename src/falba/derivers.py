@@ -1,6 +1,11 @@
 import logging
 from collections.abc import Sequence
-from typing import Dict, List, Self, Any, Optional, Callable, Tuple
+import sys
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+from typing import Dict, List, Any, Optional, Callable, Tuple
 
 from . import model
 

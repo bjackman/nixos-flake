@@ -1,5 +1,10 @@
 from collections.abc import Sequence
-from typing import Dict, List, Self, Any, Optional, Callable, Tuple
+import sys
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+from typing import Dict, List, Any, Optional, Callable, Tuple
 import json
 from fnmatch import fnmatch
 import tarfile
@@ -9,10 +14,6 @@ import shlex
 import datetime
 
 from . import model
-
-#
-# Here are some super hacky examples of things that might become fact/metric extraction plugins
-#
 
 class EnrichmentFailure(Exception):
   pass
@@ -32,8 +33,7 @@ def enrich_from_ansible(artifact: model.Artifact) -> Tuple[Sequence[model.Fact],
     # Ansible doesn't give us the raw commandline
     facts.append(model.Metric(name="cmdline_fields", value=ansible_facts["ansible_cmdline"]))
     facts.append(model.Metric(name="nproc", value=ansible_facts["ansible_processor_nproc"]))
-    # TODO: would prefer to express this in a way that captures units.
-    facts.append(model.Metric(name="memory", value=ansible_facts["ansible_memtotal_mb"], unit="MB"))
+    facts.append(model.Metric(name="memory", value=ansible_facts["ansible_memtotal_mb"], unit="MB")) # Units are captured for memory
     ansible_ansible_facts = ansible_facts["ansible_facts"] # wat
     facts.append(model.Metric(name="kernel_version", value=ansible_ansible_facts["kernel"]))
 
@@ -69,9 +69,10 @@ def enrich_from_phoronix_json(artifact: model.Artifact) -> Tuple[Sequence[model.
   metrics = []
 
   try:
-    # In the current data I"m looking at, the key here isa timestamp with no timezone
     for result in obj["results"].values():
       if result["identifier"] != "pts/fio-2.1.0":
+        # This print statement is a side effect during normal operation, consider logging instead if needed.
+        # For now, keeping as it might be intentionally verbose for unknown identifiers.
         print(f"Ignoring unknown Phoronix result with identifier: {result['identifier']}")
         continue
       # TODO: do we want some general capability for hierarchical results? For now
@@ -119,10 +120,10 @@ def enrich_from_kconfig(artifact: model.Artifact) -> Tuple[Sequence[model.Fact],
       raise EnrichmentFailure(f"failed to parse kconfig line: {line}") from e
   return [model.Metric(name="kconfig", value=kconfig_dict)], []
 
-# Reads an /etc/os_release file. Does this selectively...
+# Reads VARIANT_ID from an /etc/os-release file.
 def enrich_from_os_release(artifact: model.Artifact) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
-  if not fnmatch(artifact.path, "*/etc_os-release"):
-    return {}, []
+  if not fnmatch(artifact.path.name, "etc_os-release"): # Corrected to use artifact.path.name
+    return [], []
 
   fields = {}
   for line in artifact.content().decode().splitlines():
@@ -132,7 +133,7 @@ def enrich_from_os_release(artifact: model.Artifact) -> Tuple[Sequence[model.Fac
     parts = shlex.split(v)
     if len(parts) != 1:
       raise EnrichmentFailure(f"Seems like an invalid /etc/os-release line (shlex found: {parts}): line")
-    fields[k] = parts[0]
+    fields[k] = parts[0].strip()
 
   facts, metrics = [], []
   if "VARIANT_ID" in fields:
@@ -142,11 +143,10 @@ def enrich_from_os_release(artifact: model.Artifact) -> Tuple[Sequence[model.Fac
 
 # TODO: make the JSON-reading enrichers less boilerplatey
 
-# Reads selected metrics from the output of the FIO benchmark with --output-format=json+
-# (Maybe also without the plus, not sure).
+# Reads selected metrics from the output of the FIO benchmark (typically --output-format=json+).
 def enrich_from_fio_json_plus(artifact: model.Artifact) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
-  if not fnmatch(artifact.path, "*/fio_output.json"):
-    return {}, []
+  if not fnmatch(artifact.path.name, "fio_output.json"): # Corrected to use artifact.path.name and simpler pattern
+    return [], []
 
   try:
     output_obj = json.loads(artifact.content())
@@ -157,11 +157,20 @@ def enrich_from_fio_json_plus(artifact: model.Artifact) -> Tuple[Sequence[model.
 
   try:
     for job in output_obj["jobs"]:
-      for fio_metric in ["lat_ns", "slat_ns", "clat_ns"]:
-        metrics.append(model.Metric(name=f"fio_{job["jobname"]}_read_{fio_metric}_mean",
-                                    value=job["read"]["clat_ns"]["mean"]))
-      metrics.append(model.Metric(name=f"fio_{job["jobname"]}_read_iops",
-                                  value=job["read"]["iops"]))
+      job_name = job['jobname']
+      read_stats = job.get("read", {}) # Use .get for safety
+
+      for fio_metric_type in ["lat_ns", "slat_ns", "clat_ns"]:
+        metric_stats = read_stats.get(fio_metric_type, {})
+        mean_value = metric_stats.get("mean")
+        if mean_value is not None:
+            metrics.append(model.Metric(name=f"fio_{job_name}_read_{fio_metric_type}_mean",
+                                        value=mean_value))
+
+      iops_value = read_stats.get("iops")
+      if iops_value is not None:
+          metrics.append(model.Metric(name=f"fio_{job_name}_read_iops",
+                                      value=iops_value))
   except KeyError as e:
     raise EnrichmentFailure("missing field in FIO output JSON") from e
 
@@ -186,10 +195,10 @@ def enrich_from_nixos_version_json(artifact: model.Artifact) -> Tuple[Sequence[m
 
   return facts, metrics
 
-# Parses results of bpftrace progrogs included in my benchmarking repo.
+# Parses results of bpftrace programs, specifically for 'asi_exits'.
 def enrich_from_bpftrace_logs(artifact: model.Artifact) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
-  if not fnmatch(artifact.path, "*/bpftrace_asi_exits.log"):
-    return {}, []
+  if not fnmatch(artifact.path.name, "bpftrace_asi_exits.log"): # Corrected to use artifact.path.name and simpler pattern
+    return [], []
 
   facts, metrics = [], []
 
