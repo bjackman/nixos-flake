@@ -28,5 +28,6 @@ if __name__ == "__main__":
     df = df[df["os_release_variant_id"].isin(args.variants)]
 
     for name, group in df.groupby("os_release_variant_id"):
-        print(f"{name:<30} mean {args.metric}: {group["value"].mean()}")
-        print(f"  ({", ".join(group["result_id"].unique())})")
+        gv = group["value"]
+        print(f"{name:<30} mean {args.metric}: {gv.mean()}")
+        print(f"  ({", ".join(group["result_id"].unique())}) {len(group):8} samples  stddev {gv.std()}")
