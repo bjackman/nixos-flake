@@ -48,7 +48,7 @@ fi
 
 fio --name=randread \
 --rw=randread --size=64M --blocksize=4K --directory=/tmp \
-    --output="$OUT_DIR"/fio_output.json --output-format=json+
+    --output="$OUT_DIR"/fio_output.json --output-format=json+ --loops=5
 
 if "$ARGS_instrument"; then
     sudo kill -SIGINT "$bpftrace_pid"
