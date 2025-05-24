@@ -6,7 +6,9 @@ import pandas as pd
 import pathlib
 
 from collections.abc import Sequence
-from typing import Dict, List, Self, Any, Optional, Callable, Tuple
+from typing import Dict, List, Any, Optional, Callable, Tuple
+from typing_extensions import Self
+import json
 
 class _BaseMetric:
   def __init__(self, name: str, value: Any, unit: Optional[str] = None):
@@ -49,7 +51,7 @@ class Result:
         return cls(
             result_dirname=dire.name,
             artifacts={p: Artifact(p) for p in dire.glob('artifacts/**/*') if not p.is_dir()},
-            children={p.name: Self.read_dir(p) for p in dire.glob('children/*')},
+            children=[cls.read_dir(p) for p in dire.glob('children/*') if p.is_dir()],
         )
 
     def add_fact(self, fact: Fact):

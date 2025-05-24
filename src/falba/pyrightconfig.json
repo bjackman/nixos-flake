@@ -1,0 +1,16 @@
+{
+  "include": ["."],
+  "exclude": ["**/node_modules", "**/__pycache__", "testdata"],
+  "reportMissingImports": true,
+  "pythonVersion": "3.8",
+  "pythonPlatform": "Linux",
+  "stubPath": ".",
+  "reportGeneralTypeIssues": "error",
+  "reportPropertyTypeMismatch": "error",
+  "reportMissingParameterType": "warning",
+  "reportMissingReturnType": "warning",
+  "reportUntypedFunctionDecorator": "error",
+  "reportUntypedClassDecorator": "error",
+  "reportUntypedBaseClass": "error",
+  "reportUntypedNamedTuple": "error"
+}

@@ -1,0 +1,6 @@
+Metadata-Version: 2.4
+Name: falbe
+Version: 0.1.0
+Requires-Dist: pandas
+Provides-Extra: dev
+Requires-Dist: pyright; extra == "dev"

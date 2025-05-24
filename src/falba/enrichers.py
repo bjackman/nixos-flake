@@ -1,6 +1,8 @@
 from collections.abc import Sequence
-from typing import Dict, List, Self, Any, Optional, Callable, Tuple
+from typing import Dict, List, Any, Optional, Callable, Tuple
+from typing_extensions import Self
 import json
+import logging
 from fnmatch import fnmatch
 import tarfile
 import os
@@ -30,15 +32,15 @@ def enrich_from_ansible(artifact: model.Artifact) -> Tuple[Sequence[model.Fact],
   facts = []
   try:
     # Ansible doesn't give us the raw commandline
-    facts.append(model.Metric(name="cmdline_fields", value=ansible_facts["ansible_cmdline"]))
-    facts.append(model.Metric(name="nproc", value=ansible_facts["ansible_processor_nproc"]))
+    facts.append(model.Fact(name="cmdline_fields", value=ansible_facts["ansible_cmdline"]))
+    facts.append(model.Fact(name="nproc", value=ansible_facts["ansible_processor_nproc"]))
     # TODO: would prefer to express this in a way that captures units.
-    facts.append(model.Metric(name="memory", value=ansible_facts["ansible_memtotal_mb"], unit="MB"))
+    facts.append(model.Fact(name="memory", value=ansible_facts["ansible_memtotal_mb"], unit="MB"))
     ansible_ansible_facts = ansible_facts["ansible_facts"] # wat
-    facts.append(model.Metric(name="kernel_version", value=ansible_ansible_facts["kernel"]))
+    facts.append(model.Fact(name="kernel_version", value=ansible_ansible_facts["kernel"]))
 
     ts = ansible_facts["ansible_date_time"]["iso8601_micro"]
-    facts.append(model.Metric(name="timestamp", value=datetime.datetime.fromisoformat(ts)))
+    facts.append(model.Fact(name="timestamp", value=datetime.datetime.fromisoformat(ts)))
 
     # ansible_processor seems to be a list where each consecutive 3 pairs is
     # (processor number, vendor, model)
@@ -49,7 +51,7 @@ def enrich_from_ansible(artifact: model.Artifact) -> Tuple[Sequence[model.Fact],
   try:
     p = ansible_processor
     cpu_models = {int(p[i]): (p[i+1] + " " + p[i+2]) for i in range(0, len(p), 3)}
-    facts.append(model.Metric(name="cpu", value=" + ".join(set(cpu_models.values()))))
+    facts.append(model.Fact(name="cpu", value=" + ".join(set(cpu_models.values()))))
 
   except Exception as e:
     raise EnrichmentFailure("failed to parse ansible_processor mess") from e
@@ -60,8 +62,8 @@ def enrich_from_ansible(artifact: model.Artifact) -> Tuple[Sequence[model.Fact],
   return (facts, [])
 
 def enrich_from_phoronix_json(artifact: model.Artifact) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
-  if not fnmatch(artifact.path, "**/pts-results.json"):
-    return {}, []
+  if not fnmatch(str(artifact.path), "**/pts-results.json"):
+    return [], []
   try:
     obj = json.loads(artifact.content())
   except json.decoder.JSONDecodeError as e:
@@ -86,28 +88,32 @@ def enrich_from_phoronix_json(artifact: model.Artifact) -> Tuple[Sequence[model.
                                 unit=result["scale"]))
   except KeyError as e:
     raise EnrichmentFailure("missing expected field in phoronix-test-suite-result.json") from e
-  return {}, metrics
+  return [], metrics
 
 def enrich_from_sysfs_tgz(artifact: model.Artifact) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
-  if not fnmatch(artifact.path, "*/tmp/sysfs_cpu.tgz"):
-    return {}, []
+  if not fnmatch(str(artifact.path), "*/tmp/sysfs_cpu.tgz"):
+    return [], []
   try:
     facts = []
     with tarfile.open(artifact.path, 'r:gz') as tar:
         for member in tar.getmembers():
             if not fnmatch(member.name, "/sys/devices/system/cpu/vulnerabilities/*"):
               continue
-            content = tar.extractfile(member).read().decode('utf-8')
+            extracted_file = tar.extractfile(member)
+            if extracted_file is None:
+                logging.warn(f"Could not extract {member.name} from {artifact.path}")
+                continue
+            content = extracted_file.read().decode('utf-8')
             # tar is too clever and gets confused by sysfs files, strip of the NULs it adds
-            facts.append(model.Metric(name=f"sysfs_cpu_vuln:{os.path.basename(member.name)}", value=content.strip('\0').strip()))
+            facts.append(model.Fact(name=f"sysfs_cpu_vuln:{os.path.basename(member.name)}", value=content.strip('\0').strip()))
     return facts, []
   except Exception as e:
     raise EnrichmentFailure() from e
 
 # TODO: Should each kconfig actually be a separate fact? Maybe facts shoudl inherently be nesting...
 def enrich_from_kconfig(artifact: model.Artifact) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
-  if not fnmatch(artifact.path, "*/kconfig"):
-    return {}, []
+  if not fnmatch(str(artifact.path), "*/kconfig"):
+    return [], []
   kconfig_dict = {}
   for line in artifact.content().decode().splitlines():
     if not line.strip() or line.startswith("#"):
@@ -117,12 +123,12 @@ def enrich_from_kconfig(artifact: model.Artifact) -> Tuple[Sequence[model.Fact],
       kconfig_dict[k] = v
     except Exception as e:
       raise EnrichmentFailure(f"failed to parse kconfig line: {line}") from e
-  return [model.Metric(name="kconfig", value=kconfig_dict)], []
+  return [model.Fact(name="kconfig", value=kconfig_dict)], []
 
 # Reads an /etc/os_release file. Does this selectively...
 def enrich_from_os_release(artifact: model.Artifact) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
-  if not fnmatch(artifact.path, "*/etc_os-release"):
-    return {}, []
+  if not fnmatch(str(artifact.path), "*/etc_os-release"):
+    return [], []
 
   fields = {}
   for line in artifact.content().decode().splitlines():
@@ -145,8 +151,8 @@ def enrich_from_os_release(artifact: model.Artifact) -> Tuple[Sequence[model.Fac
 # Reads selected metrics from the output of the FIO benchmark with --output-format=json+
 # (Maybe also without the plus, not sure).
 def enrich_from_fio_json_plus(artifact: model.Artifact) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
-  if not fnmatch(artifact.path, "*/fio_output_*.json"):
-    return {}, []
+  if not fnmatch(str(artifact.path), "*/fio_output_*.json"):
+    return [], []
 
   try:
     output_obj = json.loads(artifact.content())
@@ -158,9 +164,9 @@ def enrich_from_fio_json_plus(artifact: model.Artifact) -> Tuple[Sequence[model.
   try:
     for job in output_obj["jobs"]:
       for fio_metric in ["lat_ns", "slat_ns", "clat_ns"]:
-        metrics.append(model.Metric(name=f"fio_{job["jobname"]}_read_{fio_metric}_mean",
+        metrics.append(model.Metric(name=f'fio_{job["jobname"]}_read_{fio_metric}_mean',
                                     value=job["read"]["clat_ns"]["mean"]))
-      metrics.append(model.Metric(name=f"fio_{job["jobname"]}_read_iops",
+      metrics.append(model.Metric(name=f'fio_{job["jobname"]}_read_iops',
                                   value=job["read"]["iops"]))
   except KeyError as e:
     raise EnrichmentFailure("missing field in FIO output JSON") from e
@@ -169,8 +175,8 @@ def enrich_from_fio_json_plus(artifact: model.Artifact) -> Tuple[Sequence[model.
 
 # Reads output of `nixos-version --json`
 def enrich_from_nixos_version_json(artifact: model.Artifact) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
-  if not fnmatch(artifact.path, "*/nixos-version.json"):
-    return {}, []
+  if not fnmatch(str(artifact.path), "*/nixos-version.json"):
+    return [], []
 
   try:
     obj = json.loads(artifact.content())
@@ -188,8 +194,8 @@ def enrich_from_nixos_version_json(artifact: model.Artifact) -> Tuple[Sequence[m
 
 # Parses results of bpftrace progrogs included in my benchmarking repo.
 def enrich_from_bpftrace_logs(artifact: model.Artifact) -> Tuple[Sequence[model.Fact], Sequence[model.Metric]]:
-  if not fnmatch(artifact.path, "*/bpftrace_asi_exits.log"):
-    return {}, []
+  if not fnmatch(str(artifact.path), "*/bpftrace_asi_exits.log"):
+    return [], []
 
   facts, metrics = [], []
 
