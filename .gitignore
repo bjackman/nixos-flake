@@ -1,5 +1,6 @@
 nixos.qcow2
 /results/
+/result
 *.qcow2
 *.fd
 .gdb_history
