@@ -4,13 +4,14 @@ set -eu -o pipefail
 
 DOC="
 Usage:
-    benchmark-variants [--result-db RESULT_DB] [--instrument] HOST VARIANT [VARIANT...]
+    benchmark-variants [--result-db RESULT_DB] [--instrument] [--ssh-port PORT] HOST VARIANT [VARIANT...]
     benchmark-variants --help
 
 Options:
     -h --help              Show this screen.
     --instrument           Run instrumentation for these benchmarks
     --result-db RESULT_DB  Magic result database to upload to [default: ./results].
+    --ssh-port PORT        Port for SSH [default: 22]
     HOST                   Hostname/IP of target. All other options (port, user) hardcoded.
     VARIANT                System variant to use for nixos-rebuild (e.g. aethelred-asi-off).
 "
@@ -20,13 +21,18 @@ USER=brendan  # good user, good 2 hard code
 
 RESULT_NAME=nixos-asi-benchmarks
 
+function do_ssh() {
+    ssh -p "$ARGS_ssh_port" "$USER@$ARGS_HOST" "$@"
+}
+
 if [ -d results-latest ]; then
     rm -rf results-latest
 fi
 mkdir results-latest
 
 for variant in "${ARGS_VARIANT[@]}"; do
-    nixos-rebuild --flake ".#$variant" --target-host "$USER@$ARGS_HOST" --use-remote-sudo switch
+    NIX_SSHOPTS="$NIX_SSHOPTS -p $ARGS_ssh_port" nixos-rebuild \
+        --flake ".#$variant" --target-host "$USER@$ARGS_HOST" --use-remote-sudo switch
     # Use boot.json as a funny hack to detect if we need to reboot. I am not
     # that confident in this trick...
     ssh "$USER@$ARGS_HOST" <<EOF
@@ -52,16 +58,16 @@ EOF
     # Run the benchmarks
     REMOTE_RESULTS_DIR=/tmp/benchmark-results
     # shellcheck disable=SC2029
-    ssh "$USER@$ARGS_HOST" "rm -rf $REMOTE_RESULTS_DIR; mkdir $REMOTE_RESULTS_DIR"
+    do_ssh "rm -rf $REMOTE_RESULTS_DIR; mkdir $REMOTE_RESULTS_DIR"
     cmd="benchmarks-wrapper --out-dir $REMOTE_RESULTS_DIR"
     if "$ARGS_instrument"; then
         cmd="$cmd --instrument"
     fi
-    ssh "$USER@$ARGS_HOST" "$cmd"
+    do_ssh "$cmd"
 
     # Fetch the results
     local_results_dir=$(mktemp -d)
-    scp -r "$USER@$ARGS_HOST":"$REMOTE_RESULTS_DIR/*" "$local_results_dir"
+    scp -P "$ARGS_ssh_port" -r "$USER@$ARGS_HOST":"$REMOTE_RESULTS_DIR/*" "$local_results_dir"
 
     # Hash them and store them in the format required by my cool secret
     # benchmarking result schema: $name:$hash.
