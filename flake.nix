@@ -1,6 +1,7 @@
 {
   inputs = {
     nixpkgs = { url = "github:nixos/nixpkgs/nixos-unstable"; };
+    falba = { url = "github:bjackman/falba"; flake = false; };
     kernel-6_14 = {
       url = "github:torvalds/linux?ref=v6.14";
       flake = false;
@@ -153,7 +154,7 @@
             pname = "falba";
             version = "0.1.0";
             pyproject = true;
-            src = ./src/falba;
+            src = inputs.falba;
             build-system = [ setuptools setuptools-scm ];
             propagatedBuildInputs = [ pandas ];
           };

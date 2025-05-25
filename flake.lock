@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "falba": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1748201876,
+        "narHash": "sha256-1u47nh8KcPpKRCA5rq/oi84zjz5U8w39A8RZ2uv47C8=",
+        "owner": "bjackman",
+        "repo": "falba",
+        "rev": "49e3994186e205f23232c56837d881e451b6d788",
+        "type": "github"
+      },
+      "original": {
+        "owner": "bjackman",
+        "repo": "falba",
+        "type": "github"
+      }
+    },
     "kernel-6_14": {
       "flake": false,
       "locked": {
@@ -69,6 +85,7 @@
     },
     "root": {
       "inputs": {
+        "falba": "falba",
         "kernel-6_14": "kernel-6_14",
         "kernel-asi-page-cache-fix": "kernel-asi-page-cache-fix",
         "kernel-asi-rfcv2-preview": "kernel-asi-rfcv2-preview",
