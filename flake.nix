@@ -17,6 +17,14 @@
       url = "github:bjackman/linux?ref=asi/fix-page-cache";
       flake = false;
     };
+    devlib = {
+      url = "github:ARM-software/devlib?ref=master";
+      flake = false;
+    };
+    workload-automation = {
+      url = "github:ARM-software/workload-automation?ref=master";
+      flake = false;
+    };
   };
 
   outputs = inputs@{ self, nixpkgs, ... }:
@@ -290,6 +298,45 @@
             propagatedBuildInputs = [ polars ];
           };
         falba-cli = pkgs.python3Packages.toPythonApplication falba;
+        # TODO: clean this up and separate it.
+        # The packaging for WA seems to be broken so we have to manually set up
+        # the devlip depdendency.
+        devlib = with pkgs.python3Packages;
+          buildPythonPackage {
+            pname = "devlib";
+            version = "1.4.0";
+            src = inputs.devlib;
+            dependencies = [
+              # Um, I dunno... this seems kinda dumb. I copied this list from
+              # the setup.py in the repo.
+              python-dateutil pexpect pyserial paramiko scp wrapt numpy
+              pandas pytest lxml nest-asyncio greenlet future ruamel-yaml
+            ];
+          };
+        workload-automation = with pkgs.python3Packages;
+          buildPythonApplication {
+            pname = "workload-automation";
+            version = "3.4.0";
+            src = inputs.workload-automation;
+            dependencies = [
+              # Copied this from the docs.
+              pexpect docutils pyserial pyyaml python-dateutil
+              pandas devlib wrapt requests colorama future
+              # Library not packaged in nixpkgs
+              (let
+                pname = "Louie";
+                version = "2.0.1";
+               in
+                buildPythonPackage {
+                  inherit pname version;
+                  src = pkgs.fetchPypi {
+                    inherit pname version;
+                    hash = "sha256-fWZQ+RcrXj+iEpBl/Ex0vNFNaqpUMMoNm08Smf0MImg=";
+                  };
+                }
+              )
+            ];
+          };
       };
 
       # This lets you run `nix develop` and you get a shell with `nil` in it,
@@ -309,7 +356,8 @@
           ]
           # Directly expose the dependencies of this script so it can be run
           # directly from source for convenient development.
-          ++ benchmarkVariantsDeps;
+          ++ benchmarkVariantsDeps
+          ++ [ devlib workload-automation ];
       };
 
       apps.x86_64-linux = {
