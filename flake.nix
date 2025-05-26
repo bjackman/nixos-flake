@@ -18,6 +18,10 @@
       url = "github:ARM-software/devlib?ref=master";
       flake = false;
     };
+    workload-automation = {
+      url = "github:ARM-software/workload-automation?ref=master";
+      flake = false;
+    };
   };
 
   outputs = inputs@{ self, nixpkgs, ... }:
@@ -177,6 +181,30 @@
               pandas pytest lxml nest-asyncio greenlet future ruamel-yaml
             ];
           };
+        workload-automation = with pkgs.python3Packages;
+          buildPythonApplication {
+            pname = "workload-automation";
+            version = "3.4.0";
+            src = inputs.workload-automation;
+            dependencies = [
+              # Copied this from the docs.
+              pexpect docutils pyserial pyyaml python-dateutil
+              pandas devlib wrapt requests colorama future
+              # Library not packaged in nixpkgs
+              (let
+                pname = "Louie";
+                version = "2.0.1";
+               in
+                buildPythonPackage {
+                  inherit pname version;
+                  src = pkgs.fetchPypi {
+                    inherit pname version;
+                    hash = "sha256-fWZQ+RcrXj+iEpBl/Ex0vNFNaqpUMMoNm08Smf0MImg=";
+                  };
+                }
+              )
+            ];
+          };
 
         #
         # Packages intended for use on the target.
@@ -222,7 +250,9 @@
           [
             nil nixfmt-classic nixos-rebuild
           ]
-          ++ (with self.packages.x86_64-linux; [ falba bpftraceScripts devlib ])
+          ++ (with self.packages.x86_64-linux; [
+            falba bpftraceScripts devlib workload-automation
+          ])
           ++ benchmarkBuildsDeps;
       };
 

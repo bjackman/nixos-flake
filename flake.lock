@@ -107,7 +107,25 @@
         "kernel-6_14": "kernel-6_14",
         "kernel-asi-page-cache-fix": "kernel-asi-page-cache-fix",
         "kernel-asi-rfcv2-preview": "kernel-asi-rfcv2-preview",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "workload-automation": "workload-automation"
+      }
+    },
+    "workload-automation": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1747765858,
+        "narHash": "sha256-H3C84IrmeK02qtErmZCbPVTC41puST5nHyK9VI5YxNs=",
+        "owner": "ARM-software",
+        "repo": "workload-automation",
+        "rev": "218308284342a97cbf7e14f5069effeee3d8eb83",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ARM-software",
+        "ref": "master",
+        "repo": "workload-automation",
+        "type": "github"
       }
     }
   },
