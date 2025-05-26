@@ -1,0 +1,22 @@
+# Agenda to try and run dhrystone via WA on a VM guest target.
+# This will fail because WA can't find the dhrystone binary.
+# Just installing it on the target doesn't do the trick - is it expected to?
+# I think the answer is no, because the workload definition uses `install`
+# instead of `install_if_needed`, I think if I changed to the latter with
+# (search_system_binaries=True) it might work.
+# However, maybe it would be easier to just work with WA's default model where
+# it is responsible for installing the workload itself? In that case we could
+# have Nix magic that wraps the WA build to also compile the workloads that are
+# needed.
+# The latter model would have the advantage that you don't need to install stuff
+# into the target system unless you're actually trying to run that benchmark.
+# The former model would have the advantage of letting us set up arbitrarily
+# complex details of the target just using NixOS.
+config:
+  device: generic_linux
+  device_config:
+    host: 'localhost'
+    username: 'brendan'
+    port: 2222
+workloads:
+- stress-ng
