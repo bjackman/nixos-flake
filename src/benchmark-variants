@@ -1,5 +1,7 @@
 #!/bin/bash
 
+NIX_SSHOPTS=${NIX_SSHOPTS:-}
+
 set -eu -o pipefail
 
 DOC="
