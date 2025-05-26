@@ -14,6 +14,10 @@
       url = "github:bjackman/linux?ref=asi/fix-page-cache";
       flake = false;
     };
+    devlib = {
+      url = "github:ARM-software/devlib?ref=master";
+      flake = false;
+    };
   };
 
   outputs = inputs@{ self, nixpkgs, ... }:
@@ -158,10 +162,24 @@
             build-system = [ setuptools setuptools-scm ];
             propagatedBuildInputs = [ pandas ];
           };
-
+        # TODO: clean this up and separate it.
+        # The packaging for WA seems to be broken so we have to manually set up
+        # the devlip depdendency.
+        devlib = with pkgs.python3Packages;
+          buildPythonPackage {
+            pname = "devlib";
+            version = "1.4.0";
+            src = inputs.devlib;
+            dependencies = [
+              # Um, I dunno... this seems kinda dumb. I copied this list from
+              # the setup.py in the repo.
+              python-dateutil pexpect pyserial paramiko scp wrapt numpy
+              pandas pytest lxml nest-asyncio greenlet future ruamel-yaml
+            ];
+          };
 
         #
-        # Packages intendedf for use on the target.
+        # Packages intended for use on the target.
         #
 
         # This creates a program called bpftrace_asi_exits that will call
@@ -204,7 +222,7 @@
           [
             nil nixfmt-classic nixos-rebuild
           ]
-          ++ (with self.packages.x86_64-linux; [ falba bpftraceScripts ])
+          ++ (with self.packages.x86_64-linux; [ falba bpftraceScripts devlib ])
           ++ benchmarkBuildsDeps;
       };
 

@@ -1,5 +1,22 @@
 {
   "nodes": {
+    "devlib": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1745252166,
+        "narHash": "sha256-dS91LE7BnAw471bhne2n1O8I3pEez2ufvpgOiWlLmt0=",
+        "owner": "ARM-software",
+        "repo": "devlib",
+        "rev": "f71b6a7d96fda77112d1a29c01fcb1230e7eb56c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ARM-software",
+        "ref": "master",
+        "repo": "devlib",
+        "type": "github"
+      }
+    },
     "falba": {
       "flake": false,
       "locked": {
@@ -85,6 +102,7 @@
     },
     "root": {
       "inputs": {
+        "devlib": "devlib",
         "falba": "falba",
         "kernel-6_14": "kernel-6_14",
         "kernel-asi-page-cache-fix": "kernel-asi-page-cache-fix",
