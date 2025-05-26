@@ -10,7 +10,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config-revision", required=True)
     parser.add_argument("--instrumented", action="store_true")
-    parser.add_argument("--metric", default="fio_randread_read_iops")
+    parser.add_argument("--metric", default="fio_randread_tmpfs_read_iops")
     parser.add_argument("variants", nargs="+")
     args = parser.parse_args()
 

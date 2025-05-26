@@ -62,10 +62,17 @@ for i in $(seq 5); do
         echo "/tmp is not a tmpfs"
         exit 1
     fi
+    fio --name=randread_tmpfs \
+        --rw=randread --size=64M --blocksize=4K --directory=/tmp \
+        --output="$OUT_DIR/fio_output_tmpfs_$i.json" --output-format=json+
 
-    fio --name=randread \
-    --rw=randread --size=64M --blocksize=4K --directory=/tmp \
-        --output="$OUT_DIR/fio_output_$i.json" --output-format=json+
+    if [ "$(findmnt_fstype /var/tmp)" != "ext4" ]; then
+        echo "/tmp is not a tmpfs"
+        exit 1
+    fi
+    fio --name=randread_ext4 \
+        --rw=randread --size=64M --blocksize=4K --directory=/tmp \
+        --output="$OUT_DIR/fio_output_ext4_$i.json" --output-format=json+
 done
 
 if "$ARGS_instrument"; then
