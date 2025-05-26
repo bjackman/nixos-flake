@@ -217,9 +217,8 @@
         packages = with pkgs;
           [
             nil nixfmt-classic nixos-rebuild
-            self.packages.x86_64-linux.falba
-            self.packages.x86_64-linux.bpftraceScripts
           ]
+          ++ (with self.packages.x86_64-linux; [ falba bpftraceScripts ])
           ++ benchmarkBuildsDeps;
       };
 
