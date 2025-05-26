@@ -24,7 +24,14 @@
   };
   hardware.enableAllHardware = false;
 
-  environment.systemPackages = [ pkgs.bpftrace ];
+  environment.systemPackages = [
+    pkgs.bpftrace
+    # It's annoying to recompile perf every time we change the kernel, so we
+    # just use the latest NixOS perf regardless of what is installed in the
+    # system. To use the exact corresponding perf package, replace this with:
+    # config.boot.kernelPackages.perf
+    pkgs.linuxPackages_latest.perf
+  ];
 
   # Make the kernel build tree visible in /run/booted-system/kernel-build.
   # Not sure if this is actually useful, there are no headers in there. But it's
