@@ -180,7 +180,12 @@
         # Wrapper for actually running the benchmarks.
         benchmarksWrapper = pkgs.writeShellApplication {
           name = "benchmarks-wrapper";
-          runtimeInputs = [ bpftraceScripts pkgs.docopts pkgs.fio ];
+          runtimeInputs = [
+            bpftraceScripts
+            pkgs.docopts
+            pkgs.fio
+            pkgs.jq
+          ];
           excludeShellChecks = [ "SC2154" ]; # Shellcheck can't tell ARGS_* is set.
           text = builtins.readFile ./src/benchmarks-wrapper.sh;
         };

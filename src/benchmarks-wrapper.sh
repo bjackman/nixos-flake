@@ -14,6 +14,16 @@ eval "$(docopts -G ARGS -h "$DOC" : "$@")"
 
 set -e
 
+# Get the type of the filesystem that a file is on.
+function findmnt_fstype() {
+    findmnt --target "$1" --json | jq --raw-output "
+      if (.filesystems | length) == 1 then
+        .filesystems[0].fstype
+      else
+        error(\"Not exactly one fstype found for $1\")
+      end"
+}
+
 OUT_DIR="$ARGS_out_dir"
 if [ -z "$OUT_DIR" ]; then
     OUT_DIR="$(mktemp -d)"
@@ -47,6 +57,12 @@ if "$ARGS_instrument"; then
 fi
 
 for i in $(seq 5); do
+    # This script encodes assumptions about the host system, check them.
+    if [ "$(findmnt_fstype /tmp)" != "tmpfs" ]; then
+        echo "/tmp is not a tmpfs"
+        exit 1
+    fi
+
     fio --name=randread \
     --rw=randread --size=64M --blocksize=4K --directory=/tmp \
         --output="$OUT_DIR/fio_output_$i.json" --output-format=json+
