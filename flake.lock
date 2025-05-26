@@ -36,13 +36,18 @@
     "kernel-asi-page-cache-fix": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-1r3L+V+xN9H2i6QsLMEQd62ubc73ymu5mlaHyiCRKoQ=",
-        "type": "file",
-        "url": "https://github.com/bjackman/linux?ref=asi/fix-page-cache"
+        "lastModified": 1748275144,
+        "narHash": "sha256-SWoyvgH723AYBey9m+1NBEZQRUziEeSHIjsJsUP7dRY=",
+        "owner": "bjackman",
+        "repo": "linux",
+        "rev": "394f60eb32295d8a422183d8d792199e85f3701b",
+        "type": "github"
       },
       "original": {
-        "type": "file",
-        "url": "https://github.com/bjackman/linux?ref=asi/fix-page-cache"
+        "owner": "bjackman",
+        "ref": "asi/fix-page-cache",
+        "repo": "linux",
+        "type": "github"
       }
     },
     "kernel-asi-rfcv2-preview": {

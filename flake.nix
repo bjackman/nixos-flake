@@ -11,8 +11,7 @@
       flake = false;
     };
     kernel-asi-page-cache-fix = {
-      # Trying "git" to see if it's faster than "github".
-      url = "git+https://github.com/bjackman/linux?ref=asi/fix-page-cache";
+      url = "github:bjackman/linux?ref=asi/fix-page-cache";
       flake = false;
     };
   };
