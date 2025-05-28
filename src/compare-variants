@@ -39,7 +39,7 @@ if __name__ == "__main__":
     db = falba.read_db(pathlib.Path("./results"))
 
     df = db.flat_df()
-    df = df[df["nixos_configuration_revision"] == args.config_revision]
+    df = df[df["nixos_configuration_revision"] == config_revision]
 
     df = df[df["metric"] == args.metric]
     df = df[df["instrumented"] == args.instrumented]
