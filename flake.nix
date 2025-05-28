@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs = { url = "github:nixos/nixpkgs/nixos-unstable"; };
+    nixpkgs = { url = "github:nixos/nixpkgs/nixos-25.05"; };
     falba = { url = "github:bjackman/falba"; flake = false; };
     kernel-6_14 = {
       url = "github:torvalds/linux?ref=v6.14";
