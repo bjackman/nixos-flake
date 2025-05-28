@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     missing_variants = set(args.variants) - set(df["os_release_variant_id"])
     if missing_variants:
-        print(f"No results for variants {missing_variants}")
+        print(f"No results for variants {missing_variants} with nixos_configuration_revision={config_revision} and instrumented={args.instrumented}")
     df = df[df["os_release_variant_id"].isin(args.variants)]
 
     for name, group in df.groupby("os_release_variant_id"):
