@@ -36,11 +36,11 @@
     "kernel-asi-page-cache-fix": {
       "flake": false,
       "locked": {
-        "lastModified": 1748349870,
-        "narHash": "sha256-O29+0L5Nb++aV/oDvmZqzW/AOqkZ6tLWr48L0xOSy9I=",
+        "lastModified": 1748425000,
+        "narHash": "sha256-T4PFivg2n4Sgm04rcVKcw/REkf7uRuqgNTIJCHCQPdg=",
         "owner": "bjackman",
         "repo": "linux",
-        "rev": "c5ff2443bc9824a59303a9ecd3bb69d138269b05",
+        "rev": "340e3f8a88cf3f38546e056287d318460ad9dff4",
         "type": "github"
       },
       "original": {
