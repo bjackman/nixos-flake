@@ -1,16 +1,15 @@
 #!/bin/bash
+#
+# Usage:
+#     benchmarks-wrapper [--out-dir DIR] [--instrument]
+#     benchmarks-wrapper --help
+#
+# Options:
+#     -h --help              Show this screen.
+#     --instrument           Run instrumentation for these benchmarks
+#     -o DIR --out-dir DIR   Directory to dump results in. Default uses mktemp.
 
-DOC="
-Usage:
-    benchmarks-wrapper [--out-dir DIR] [--instrument]
-    benchmarks-wrapper --help
-
-Options:
-    -h --help              Show this screen.
-    --instrument           Run instrumentation for these benchmarks
-    -o DIR --out-dir DIR   Directory to dump results in. Default uses mktemp.
-"
-eval "$(docopts -G ARGS -h "$DOC" : "$@")"
+source docopts.sh --auto -G "$@"
 
 set -e
 
