@@ -18,7 +18,18 @@
 
   outputs = inputs@{ self, nixpkgs, ... }:
     let
-      pkgs = import nixpkgs { system = "x86_64-linux"; };
+      pkgs = import nixpkgs {
+        system = "x86_64-linux";
+        # https://github.com/NixOS/nixpkgs/pull/408168/
+        overlays = [(final: prev: {
+          docopts = prev.docopts.overrideAttrs (prev: {
+            postInstall = ''
+              cp ${prev.src}/docopts.sh $out/bin/docopts.sh
+              chmod +x $out/bin/docopts.sh
+            '';
+          });
+        })];
+      };
       kernelPackages = {
         # NixOS's default kernel. This is just here so that I can work on these
         # configs on tiny wittle waptops as it lets you avoid compiling a kernel.
