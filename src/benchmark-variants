@@ -1,23 +1,22 @@
 #!/bin/bash
+#
+# Usage:
+#     benchmark-variants [--result-db RESULT_DB] [--instrument] [--ssh-port PORT] HOST VARIANT [VARIANT...]
+#     benchmark-variants --help
+#
+# Options:
+#     -h --help              Show this screen.
+#     --instrument           Run instrumentation for these benchmarks
+#     --result-db RESULT_DB  Magic result database to upload to [default: ./results].
+#     --ssh-port PORT        Port for SSH [default: 22]
+#     HOST                   Hostname/IP of target. All other options (port, user) hardcoded.
+#     VARIANT                System variant to use for nixos-rebuild (e.g. aethelred-asi-off).
 
 NIX_SSHOPTS=${NIX_SSHOPTS:-}
 
 set -eu -o pipefail
 
-DOC="
-Usage:
-    benchmark-variants [--result-db RESULT_DB] [--instrument] [--ssh-port PORT] HOST VARIANT [VARIANT...]
-    benchmark-variants --help
-
-Options:
-    -h --help              Show this screen.
-    --instrument           Run instrumentation for these benchmarks
-    --result-db RESULT_DB  Magic result database to upload to [default: ./results].
-    --ssh-port PORT        Port for SSH [default: 22]
-    HOST                   Hostname/IP of target. All other options (port, user) hardcoded.
-    VARIANT                System variant to use for nixos-rebuild (e.g. aethelred-asi-off).
-"
-eval "$(docopts -G ARGS -h "$DOC" : "$@")"
+source docopts.sh --auto -G "$@"
 
 USER=brendan  # good user, good 2 hard code
 
