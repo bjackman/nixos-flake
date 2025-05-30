@@ -60,7 +60,7 @@
             }
             {
               name = "asi-off";
-              kernelPackages = kernelPackages.asi-rfcv2-preview;
+              kernelPackages = kernelPackages.asi-page-cache-fix;
               # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
               # For newer kernels instead use setcpuid.
               kernelParams = [ "force_cpu_bug=retbleed" ];
