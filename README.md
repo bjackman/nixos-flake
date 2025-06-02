@@ -58,6 +58,30 @@ tree but my workaround for that has just been to build them in a separate
 checkout of the same kernel code (`make scripts_gdb`) and then run `source
 <kernel-tree>/vmlinux-gdb.py` in the GDB prompt.
 
+### Run with a kernel built outside of Nix
+
+It can be tiresome to build the kernel with Nix every time for quick functional
+debugging and testing. So you can build a kernel using the normal upstream
+`make` stuffnd then point to the `bzImage` like so:
+
+```sh
+NIXPKGS_QEMU_KERNEL_nixos=$HOME/src/linux/linux/arch/x86/boot/bzImage
+```
+
+This will break the initrd's `modprobe` logic so you'll need to ensure you've
+built in everything that's required to boot on this QEMU guest. You can achieve
+that either by:
+
+- Taking one of the configs checked in here under `kconfigs/` and doing `sed -i
+  s/=m/=y/ .config` on it, or
+- (Builds much faster) install
+  [`virtme-ng`](https://github.com/arighi/virtme-ng), use its configuration, but
+  add ext4 support:
+
+  ```sh
+  vng --kconfig && scripts/config -e EXT4_FS && make -j olddefconfig && make -sj100 bzImage
+  ```
+
 ## Run on `aethelred`
 
 I installed NixOS using the installer on `aethelred`. I can then rebuild it
