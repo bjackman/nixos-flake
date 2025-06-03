@@ -85,5 +85,5 @@ EOF
     mv "$local_results_dir"/* "$artifacts_dir"
 
     # Store a symlink to the latest reuslts for convenient manual inspection.
-    ln -s "../results/$result_id" results-latest/$variant
+    ln -s "../results/$result_id" "results-latest/$variant"
 done

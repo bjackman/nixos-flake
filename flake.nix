@@ -173,6 +173,7 @@
           # Shellcheck can't tell ARGS_* is set.
           excludeShellChecks = [ "SC2154" ];
           text = builtins.readFile ./src/benchmark-variants;
+          extraShellCheckFlags = [ "--external-sources" "--source-path=${pkgs.docopts}/bin" ];
         };
         falba = with pkgs.python3Packages;
           buildPythonPackage {
