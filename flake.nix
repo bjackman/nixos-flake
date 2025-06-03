@@ -50,7 +50,7 @@
           configfile = kconfigs/v6.12_nix_based_asi.config;
         };
       };
-      benchmarkBuildsDeps = [ pkgs.docopts ];
+      benchmarkVariantsDeps = [ pkgs.docopts ];
       baseKernelParams = [ "nokaslr" "mitigations=off" "init_on_alloc=0" ];
     in {
       nixosModules.brendan = import ./modules/brendan.nix;
@@ -169,7 +169,7 @@
 
         benchmarkVariants = pkgs.writeShellApplication {
           name = "benchmark-variants";
-          runtimeInputs = benchmarkBuildsDeps;
+          runtimeInputs = benchmarkVariantsDeps;
           # Shellcheck can't tell ARGS_* is set.
           excludeShellChecks = [ "SC2154" ];
           text = builtins.readFile ./src/benchmark-variants;
@@ -231,7 +231,7 @@
             nil nixfmt-classic nixos-rebuild
           ]
           ++ (with self.packages.x86_64-linux; [ falba bpftraceScripts ])
-          ++ benchmarkBuildsDeps;
+          ++ benchmarkVariantsDeps;
       };
 
       apps.x86_64-linux = {
