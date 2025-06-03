@@ -168,7 +168,7 @@
         #
 
         benchmarkVariants = pkgs.writeShellApplication {
-          name = "benchmark-builds";
+          name = "benchmark-variants";
           runtimeInputs = benchmarkBuildsDeps;
           # Shellcheck can't tell ARGS_* is set.
           excludeShellChecks = [ "SC2154" ];
