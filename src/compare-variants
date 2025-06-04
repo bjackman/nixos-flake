@@ -1,56 +1,36 @@
-#!/usr/bin/env python3
+#!/usr/bin/env bash
+#
+# Wrapper for 'falba compare with some ASI-benchmarking specific defaults.
+#
+# Usage:
+#     compare-variants [--config-revision REV] [--instrumented] [--metric METRIC]
+#     compare-variants --help
+#
+# Options:
+#     -h --help              Show this screen.
+#     --config-revision REV  NixOS configuration revision to compare variants
+#                            of. This is a Git commit hash. If not specified,
+#                            uses HEAD from CWD. Unlike if you were using falba
+#                            directly, this doesn't need to be a full commit
+#                            hash.
+#     --instrumented         Compare instrumented runs instead of ignoring them.
+#     --metric METRIC        Metric to compare [default: fio_randread_tmpfs_read_iops].
 
-import argparse
-import subprocess
-import pathlib
+set -eu -o pipefail
 
-import falba
-import falba.model
+source docopts.sh --auto -G "$@"
 
-def git_head_state():
-    dirty_check = subprocess.run(
-        ['git', 'status', '--porcelain'],
-        capture_output=True, text=True, check=True
-    )
-    dirty = bool(dirty_check.stdout.strip())
+if [ -z "$ARGS_config_revision" ]; then
+    if ! [ -z "$(git status --porcelain)" ]; then
+        echo "Git tree is dirty, --config-revision must be specified"
+        exit 1
+    fi
+    CONFIG_REVISION="$(git rev-parse HEAD)"
+else
+    CONFIG_REVISION="$(git rev-parse "$ARGS_config_revision")"
+fi
 
-    head_process = subprocess.run(
-        ['git', 'rev-parse', 'HEAD'],
-        capture_output=True, text=True, check=True
-    )
-    return dirty, head_process.stdout.strip()
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--config-revision", help="Value of nixos_config_revision to analyse for. Default is HEAD")
-    parser.add_argument("--instrumented", action="store_true")
-    parser.add_argument("--metric", default="fio_randread_tmpfs_read_iops")
-    parser.add_argument("variants", nargs="+")
-    args = parser.parse_args()
-
-    # Implement "default is HEAD"
-    config_revision = args.config_revision
-    if not config_revision:
-        dirty, config_revision = git_head_state()
-        if dirty:
-            parser.error("Git tree is dirty, --config-revision must be specified")
-            exit(1)
-
-    db = falba.read_db(pathlib.Path("./results"))
-
-    df = db.flat_df()
-    df = df[df["nixos_configuration_revision"] == config_revision]
-
-    df = df[df["metric"] == args.metric]
-    df = df[df["instrumented"] == args.instrumented]
-
-    missing_variants = set(args.variants) - set(df["os_release_variant_id"])
-    if missing_variants:
-        print(f"No results for variants {missing_variants} with nixos_configuration_revision={config_revision} and instrumented={args.instrumented}")
-    df = df[df["os_release_variant_id"].isin(args.variants)]
-
-    for name, group in df.groupby("os_release_variant_id"):
-        gv = group["value"]
-        # Note lazy hack to achieve alignment of mean and stddev values
-        print(f"{name:<30} mean {args.metric}: {gv.mean():>13.1f}")
-        print(f"  ({", ".join(group["result_id"].unique())}) {len(group):>8} samples  stddev {gv.std():>10.1f}")
+falba compare \
+    --fact-eq instrumented "$ARGS_instrumented" \
+    --fact-eq nixos_configuration_revision "$CONFIG_REVISION" \
+    os_release_variant_id "$ARGS_metric"
