@@ -1,7 +1,10 @@
 {
   inputs = {
     nixpkgs = { url = "github:nixos/nixpkgs/nixos-25.05"; };
-    falba = { url = "github:bjackman/falba"; flake = false; };
+    falba = {
+      url = "github:bjackman/falba";
+      flake = false;
+    };
     kernel-6_14 = {
       url = "github:torvalds/linux?ref=v6.14";
       flake = false;
@@ -21,14 +24,16 @@
       pkgs = import nixpkgs {
         system = "x86_64-linux";
         # https://github.com/NixOS/nixpkgs/pull/408168/
-        overlays = [(final: prev: {
-          docopts = prev.docopts.overrideAttrs (prev: {
-            postInstall = ''
-              cp ${prev.src}/docopts.sh $out/bin/docopts.sh
-              chmod +x $out/bin/docopts.sh
-            '';
-          });
-        })];
+        overlays = [
+          (final: prev: {
+            docopts = prev.docopts.overrideAttrs (prev: {
+              postInstall = ''
+                cp ${prev.src}/docopts.sh $out/bin/docopts.sh
+                chmod +x $out/bin/docopts.sh
+              '';
+            });
+          })
+        ];
       };
       kernelPackages = {
         # NixOS's default kernel. This is just here so that I can work on these
@@ -51,7 +56,8 @@
         };
       };
       benchmarkVariantsDeps = [
-        pkgs.docopts pkgs.nixos-rebuild
+        pkgs.docopts
+        pkgs.nixos-rebuild
         self.packages.x86_64-linux.falba-cli
       ];
       baseKernelParams = [ "nokaslr" "mitigations=off" "init_on_alloc=0" ];
@@ -125,7 +131,7 @@
             }
             {
               name = "base";
-              modules = [];
+              modules = [ ];
             }
           ];
         };
@@ -143,24 +149,21 @@
             bpftraceScripts = pkgs.stdenv.mkDerivation {
               pname = "bpftrace-scripts";
               version = "0.1";
-              src = pkgs.writeScriptBin "asi_exits.bpftrace" (builtins.readFile src/asi_exits.bpftrace);
+              src = pkgs.writeScriptBin "asi_exits.bpftrace"
+                (builtins.readFile src/asi_exits.bpftrace);
               installPhase = ''
-              mkdir -p $out/bin
-              makeWrapper $src/bin/asi_exits.bpftrace $out/bin/bpftrace_asi_exits \
-                --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.bpftrace ]}
+                mkdir -p $out/bin
+                makeWrapper $src/bin/asi_exits.bpftrace $out/bin/bpftrace_asi_exits \
+                  --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.bpftrace ]}
               '';
               buildInputs = [ pkgs.makeWrapper ];
             };
             # Wrapper for actually running the benchmarks.
             benchmarksWrapper = pkgs.writeShellApplication {
               name = "benchmarks-wrapper";
-              runtimeInputs = [
-                bpftraceScripts
-                pkgs.docopts
-                pkgs.fio
-                pkgs.jq
-              ];
-              excludeShellChecks = [ "SC2154" ]; # Shellcheck can't tell ARGS_* is set.
+              runtimeInputs = [ bpftraceScripts pkgs.docopts pkgs.fio pkgs.jq ];
+              excludeShellChecks =
+                [ "SC2154" ]; # Shellcheck can't tell ARGS_* is set.
               text = builtins.readFile ./src/benchmarks-wrapper.sh;
             };
           };
@@ -178,7 +181,8 @@
                 system.configurationRevision = self.rev or "dirty";
                 # This goes encoded into the /etc/os-release as VARIANT_ID=
                 system.nixos.variant_id = name;
-                environment.systemPackages = builtins.attrValues benchmarkingPkgs;
+                environment.systemPackages =
+                  builtins.attrValues benchmarkingPkgs;
               }
             ] ++ variant.machine.modules;
             specialArgs = {
@@ -198,7 +202,8 @@
           # Shellcheck can't tell ARGS_* is set.
           excludeShellChecks = [ "SC2154" ];
           text = builtins.readFile ./src/benchmark-variants;
-          extraShellCheckFlags = [ "--external-sources" "--source-path=${pkgs.docopts}/bin" ];
+          extraShellCheckFlags =
+            [ "--external-sources" "--source-path=${pkgs.docopts}/bin" ];
         };
         falba = with pkgs.python3Packages;
           buildPythonPackage {
@@ -223,7 +228,9 @@
       devShells.x86_64-linux.default = pkgs.mkShell {
         packages = with pkgs;
           [
-            nil nixfmt-classic nixos-rebuild
+            nil
+            nixfmt-classic
+            nixos-rebuild
           ]
           # Directly expose the dependencies of this script so it can be run
           # directly from source for convenient development.
