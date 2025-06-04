@@ -50,7 +50,10 @@
           configfile = kconfigs/v6.12_nix_based_asi.config;
         };
       };
-      benchmarkVariantsDeps = [ pkgs.docopts ];
+      benchmarkVariantsDeps = [
+        pkgs.docopts
+        self.packages.x86_64-linux.falba-cli
+      ];
       baseKernelParams = [ "nokaslr" "mitigations=off" "init_on_alloc=0" ];
     in {
       nixosModules.brendan = import ./modules/brendan.nix;
@@ -182,9 +185,9 @@
             pyproject = true;
             src = inputs.falba;
             build-system = [ setuptools setuptools-scm ];
-            propagatedBuildInputs = [ pandas ];
+            propagatedBuildInputs = [ polars ];
           };
-
+        falba-cli = pkgs.python3Packages.toPythonApplication falba;
 
         #
         # Packages intendedf for use on the target.
