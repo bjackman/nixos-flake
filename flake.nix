@@ -235,8 +235,7 @@
         # does make sense to expose as an app.
         benchmark-variants = {
           type = "app";
-          program =
-            "${self.packages.x86_64-linux.benchmarkVariants}/bin/benchmark-variants";
+          program = self.packages.x86_64-linux.benchmarkVariants;
         };
       };
     };
