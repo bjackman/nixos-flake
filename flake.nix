@@ -231,8 +231,6 @@
       };
 
       apps.x86_64-linux = {
-        # This app is the actual main entry point of this whole tooling so this
-        # does make sense to expose as an app.
         benchmark-variants = {
           type = "app";
           program = self.packages.x86_64-linux.benchmarkVariants;
