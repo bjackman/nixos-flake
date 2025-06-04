@@ -135,7 +135,35 @@
         # listToAttrs. That requires a list of attrsets with fields .name and
         # .value.
       in builtins.listToAttrs (map (variant:
-        let name = "${variant.machine.name}-${variant.kernel.name}";
+        let
+          name = "${variant.machine.name}-${variant.kernel.name}";
+          benchmarkingPkgs = rec {
+            # This creates a program called bpftrace_asi_exits that will call
+            # bpftrace with the appropriate script.
+            bpftraceScripts = pkgs.stdenv.mkDerivation {
+              pname = "bpftrace-scripts";
+              version = "0.1";
+              src = pkgs.writeScriptBin "asi_exits.bpftrace" (builtins.readFile src/asi_exits.bpftrace);
+              installPhase = ''
+              mkdir -p $out/bin
+              makeWrapper $src/bin/asi_exits.bpftrace $out/bin/bpftrace_asi_exits \
+                --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.bpftrace ]}
+              '';
+              buildInputs = [ pkgs.makeWrapper ];
+            };
+            # Wrapper for actually running the benchmarks.
+            benchmarksWrapper = pkgs.writeShellApplication {
+              name = "benchmarks-wrapper";
+              runtimeInputs = [
+                bpftraceScripts
+                pkgs.docopts
+                pkgs.fio
+                pkgs.jq
+              ];
+              excludeShellChecks = [ "SC2154" ]; # Shellcheck can't tell ARGS_* is set.
+              text = builtins.readFile ./src/benchmarks-wrapper.sh;
+            };
+          };
         in {
           inherit name;
           value = nixpkgs.lib.nixosSystem {
@@ -150,10 +178,7 @@
                 system.configurationRevision = self.rev or "dirty";
                 # This goes encoded into the /etc/os-release as VARIANT_ID=
                 system.nixos.variant_id = name;
-                environment.systemPackages = [
-                  self.packages.x86_64-linux.benchmarksWrapper
-                  self.packages.x86_64-linux.bpftraceScripts
-                ];
+                environment.systemPackages = builtins.attrValues benchmarkingPkgs;
               }
             ] ++ variant.machine.modules;
             specialArgs = {
@@ -163,13 +188,10 @@
           };
         }) variants);
 
+      # Arguably defining these as pacakges is pointless, we can probably just
+      # use them directly from the devShell. But this keeps the flake from
+      # getting too weird I think...
       packages.x86_64-linux = rec {
-        #
-        # Packages for use on the development host. Arguably defining these as
-        # pacakges is pointless, we can probably just use them directly from the
-        # devShell. But this keeps the flake from getting too weird I think...
-        #
-
         benchmarkVariants = pkgs.writeShellApplication {
           name = "benchmark-variants";
           runtimeInputs = benchmarkVariantsDeps;
@@ -188,36 +210,6 @@
             propagatedBuildInputs = [ polars ];
           };
         falba-cli = pkgs.python3Packages.toPythonApplication falba;
-
-        #
-        # Packages intendedf for use on the target.
-        #
-
-        # This creates a program called bpftrace_asi_exits that will call
-        # bpftrace with the appropriate script.
-        bpftraceScripts = pkgs.stdenv.mkDerivation {
-          pname = "bpftrace-scripts";
-          version = "0.1";
-          src = pkgs.writeScriptBin "asi_exits.bpftrace" (builtins.readFile src/asi_exits.bpftrace);
-          installPhase = ''
-          mkdir -p $out/bin
-          makeWrapper $src/bin/asi_exits.bpftrace $out/bin/bpftrace_asi_exits \
-            --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.bpftrace ]}
-          '';
-          buildInputs = [ pkgs.makeWrapper ];
-        };
-        # Wrapper for actually running the benchmarks.
-        benchmarksWrapper = pkgs.writeShellApplication {
-          name = "benchmarks-wrapper";
-          runtimeInputs = [
-            bpftraceScripts
-            pkgs.docopts
-            pkgs.fio
-            pkgs.jq
-          ];
-          excludeShellChecks = [ "SC2154" ]; # Shellcheck can't tell ARGS_* is set.
-          text = builtins.readFile ./src/benchmarks-wrapper.sh;
-        };
       };
 
       # This lets you run `nix develop` and you get a shell with `nil` in it,
@@ -233,7 +225,8 @@
           [
             nil nixfmt-classic nixos-rebuild
           ]
-          ++ (with self.packages.x86_64-linux; [ falba bpftraceScripts ])
+          # Directly expose the dependencies of this script so it can be run
+          # directly from source for convenient development.
           ++ benchmarkVariantsDeps;
       };
 
