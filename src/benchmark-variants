@@ -20,8 +20,6 @@ source docopts.sh --auto -G "$@"
 
 USER=brendan  # good user, good 2 hard code
 
-RESULT_NAME=nixos-asi-benchmarks
-
 function do_ssh() {
     ssh -p "$ARGS_ssh_port" "$USER@$ARGS_HOST" "$@"
 }
@@ -72,18 +70,6 @@ EOF
 
     # Hash them and store them in the format required by my cool secret
     # benchmarking result schema: $name:$hash.
-    # For these results we consider all the artifacts to be part of the hash
-    # input, if any file differs it must be a repeated run.
-    result_hash=$(find "$local_results_dir" -type f -exec cat {} \; | sha256sum | awk '{ print substr($1, 1, 12) }')
-    result_id="$RESULT_NAME:$result_hash"
-    artifacts_dir="$ARGS_result_db/$result_id/artifacts"
-    if [ -e "$artifacts_dir" ]; then
-        echo "$artifacts_dir already exists!"
-        exit 1
-    fi
-    mkdir -p "$artifacts_dir"
-    mv "$local_results_dir"/* "$artifacts_dir"
-
-    # Store a symlink to the latest reuslts for convenient manual inspection.
-    ln -s "../results/$result_id" "results-latest/$variant"
+    # This will import to the default Falba DB location i.e. ./results/
+    falba import nixos-asi-benchmarks "$local_results_dir"/*
 done
