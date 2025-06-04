@@ -51,7 +51,7 @@
         };
       };
       benchmarkVariantsDeps = [
-        pkgs.docopts
+        pkgs.docopts pkgs.nixos-rebuild
         self.packages.x86_64-linux.falba-cli
       ];
       baseKernelParams = [ "nokaslr" "mitigations=off" "init_on_alloc=0" ];
