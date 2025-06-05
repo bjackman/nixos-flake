@@ -143,30 +143,6 @@
       in builtins.listToAttrs (map (variant:
         let
           name = "${variant.machine.name}-${variant.kernel.name}";
-          benchmarkingPkgs = rec {
-            # This creates a program called bpftrace_asi_exits that will call
-            # bpftrace with the appropriate script.
-            bpftraceScripts = pkgs.stdenv.mkDerivation {
-              pname = "bpftrace-scripts";
-              version = "0.1";
-              src = pkgs.writeScriptBin "asi_exits.bpftrace"
-                (builtins.readFile src/asi_exits.bpftrace);
-              installPhase = ''
-                mkdir -p $out/bin
-                makeWrapper $src/bin/asi_exits.bpftrace $out/bin/bpftrace_asi_exits \
-                  --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.bpftrace ]}
-              '';
-              buildInputs = [ pkgs.makeWrapper ];
-            };
-            # Wrapper for actually running the benchmarks.
-            benchmarksWrapper = pkgs.writeShellApplication {
-              name = "benchmarks-wrapper";
-              runtimeInputs = [ bpftraceScripts pkgs.docopts pkgs.fio pkgs.jq ];
-              excludeShellChecks =
-                [ "SC2154" ]; # Shellcheck can't tell ARGS_* is set.
-              text = builtins.readFile ./src/benchmarks-wrapper.sh;
-            };
-          };
         in {
           inherit name;
           value = nixpkgs.lib.nixosSystem {
@@ -182,7 +158,7 @@
                 # This goes encoded into the /etc/os-release as VARIANT_ID=
                 system.nixos.variant_id = name;
                 environment.systemPackages =
-                  builtins.attrValues benchmarkingPkgs;
+                  builtins.attrValues self.targetPackages.x86_64-linux;
               }
             ] ++ variant.machine.modules;
             specialArgs = {
@@ -191,6 +167,33 @@
             };
           };
         }) variants);
+
+      # Packages intended to be run on the target host. These are exposed
+      # as flake outputs just so they can easily be inspected
+      targetPackages.x86_64-linux = rec {
+        # This creates a program called bpftrace_asi_exits that will call
+        # bpftrace with the appropriate script.
+        bpftraceScripts = pkgs.stdenv.mkDerivation {
+          pname = "bpftrace-scripts";
+          version = "0.1";
+          src = pkgs.writeScriptBin "asi_exits.bpftrace"
+            (builtins.readFile src/asi_exits.bpftrace);
+          installPhase = ''
+            mkdir -p $out/bin
+            makeWrapper $src/bin/asi_exits.bpftrace $out/bin/bpftrace_asi_exits \
+              --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.bpftrace ]}
+          '';
+          buildInputs = [ pkgs.makeWrapper ];
+        };
+        # Wrapper for actually running the benchmarks.
+        benchmarksWrapper = pkgs.writeShellApplication {
+          name = "benchmarks-wrapper";
+          runtimeInputs = [ bpftraceScripts pkgs.docopts pkgs.fio pkgs.jq ];
+          excludeShellChecks =
+            [ "SC2154" ]; # Shellcheck can't tell ARGS_* is set.
+          text = builtins.readFile ./src/benchmarks-wrapper.sh;
+        };
+      };
 
       # Arguably defining these as pacakges is pointless, we can probably just
       # use them directly from the devShell. But this keeps the flake from
