@@ -141,8 +141,7 @@
         # listToAttrs. That requires a list of attrsets with fields .name and
         # .value.
       in builtins.listToAttrs (map (variant:
-        let
-          name = "${variant.machine.name}-${variant.kernel.name}";
+        let name = "${variant.machine.name}-${variant.kernel.name}";
         in {
           inherit name;
           value = nixpkgs.lib.nixosSystem {
