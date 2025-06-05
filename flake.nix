@@ -35,32 +35,13 @@
           })
         ];
       };
-      kernelPackages = {
-        # NixOS's default kernel. This is just here so that I can work on these
-        # configs on tiny wittle waptops as it lets you avoid compiling a kernel.
-        nixos = pkgs.linuxPackages;
-        v6_14 = pkgs.linuxPackages_custom {
-          version = "6.14";
-          src = inputs.kernel-6_14;
-          configfile = kconfigs/v6.14_nix_based.config;
-        };
-        asi-rfcv2-preview = pkgs.linuxPackages_custom {
-          version = "6.12";
-          src = inputs.kernel-asi-rfcv2-preview;
-          configfile = kconfigs/v6.12_nix_based_asi.config;
-        };
-        asi-page-cache-fix = pkgs.linuxPackages_custom {
-          version = "6.12";
-          src = inputs.kernel-asi-page-cache-fix;
-          configfile = kconfigs/v6.12_nix_based_asi.config;
-        };
-      };
       benchmarkVariantsDeps = [
         pkgs.docopts
         pkgs.nixos-rebuild
         self.packages.x86_64-linux.falba-cli
       ];
       baseKernelParams = [ "nokaslr" "mitigations=off" "init_on_alloc=0" ];
+      kernelPackages = self.kernelPackages.x86_64-linux;
     in {
       nixosModules.brendan = import ./modules/brendan.nix;
       nixosConfigurations = let
@@ -166,6 +147,27 @@
             };
           };
         }) variants);
+
+      kernelPackages.x86_64-linux = {
+        # NixOS's default kernel. This is just here so that I can work on these
+        # configs on tiny wittle waptops as it lets you avoid compiling a kernel.
+        nixos = pkgs.linuxPackages;
+        v6_14 = pkgs.linuxPackages_custom {
+          version = "6.14";
+          src = inputs.kernel-6_14;
+          configfile = kconfigs/v6.14_nix_based.config;
+        };
+        asi-rfcv2-preview = pkgs.linuxPackages_custom {
+          version = "6.12";
+          src = inputs.kernel-asi-rfcv2-preview;
+          configfile = kconfigs/v6.12_nix_based_asi.config;
+        };
+        asi-page-cache-fix = pkgs.linuxPackages_custom {
+          version = "6.12";
+          src = inputs.kernel-asi-page-cache-fix;
+          configfile = kconfigs/v6.12_nix_based_asi.config;
+        };
+      };
 
       # Packages intended to be run on the target host. These are exposed
       # as flake outputs just so they can easily be inspected
