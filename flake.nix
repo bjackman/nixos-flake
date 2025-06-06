@@ -228,6 +228,12 @@
             postInstall = ''ln -s $out/bin/run_kselftest.sh $out/bin/${pname}'';
             enableParallelBuilding = true;
           };
+        # Convenience helper for some tests I currently care about.
+        kselftests-ldt = pkgs.writeShellApplication {
+          name = "kselftests-ldt";
+          runtimeInputs = [ kselftests-x86 ];
+          text = ''kselftests-x86 --test x86:ldt_gdt_32 --test x86:ldt_gdt_64'';
+        };
       };
 
       # Arguably defining these as pacakges is pointless, we can probably just
