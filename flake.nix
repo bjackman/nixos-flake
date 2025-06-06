@@ -202,11 +202,20 @@
           let
             kernel = self.kernelPackages.x86_64-linux.nixos.kernel;
             buildInstallFlags = [ "-C" "tools/testing/selftests" "TARGETS=x86" ];
-          in pkgs.stdenv.mkDerivation rec {
+          # multiStdenv gives us a toolchain with multilib support, which some
+          # of the kselftests need.
+          in pkgs.multiStdenv.mkDerivation rec {
             pname = "kselftests-x86";
             version = kernel.version;
             src = kernel.src;
-            buildInputs = with pkgs; [ glibc glibc.static ];
+            # Not sure why but we need to explicitly include glibc, for both
+            # archs.
+            buildInputs = with pkgs; [
+              glibc
+              glibc.static
+              pkgsi686Linux.glibc
+              pkgsi686Linux.glibc.static
+            ];
             nativeBuildInputs = with pkgs; [ bison flex bc rsync ];
             configurePhase = ''make $makeFlags defconfig'';
             preBuild = ''make $makeFlags headers'';
