@@ -194,6 +194,31 @@
             [ "SC2154" ]; # Shellcheck can't tell ARGS_* is set.
           text = builtins.readFile ./src/benchmarks-wrapper.sh;
         };
+        # We donly do this for the x86 kselftests because building these tests
+        # is so annoying. The x86 ones are the only ones that I know can be
+        # built without being fussy about the exact kernel config, and without
+        # requiring a full kernel build in the tree.
+        kselftests-x86 =
+          let
+            kernel = self.kernelPackages.x86_64-linux.nixos.kernel;
+            buildInstallFlags = [ "-C" "tools/testing/selftests" "TARGETS=x86" ];
+          in pkgs.stdenv.mkDerivation rec {
+            pname = "kselftests-x86";
+            version = kernel.version;
+            src = kernel.src;
+            buildInputs = with pkgs; [ glibc glibc.static ];
+            nativeBuildInputs = with pkgs; [ bison flex bc rsync ];
+            configurePhase = ''make $makeFlags defconfig'';
+            preBuild = ''make $makeFlags headers'';
+            buildFlags = buildInstallFlags;
+            preInstall = ''
+              mkdir -p $out/bin
+              export KSFT_INSTALL_PATH=$out/bin
+            '';
+            installFlags = buildInstallFlags;
+            postInstall = ''ln -s $out/bin/run_kselftest.sh $out/bin/${pname}'';
+            enableParallelBuilding = true;
+          };
       };
 
       # Arguably defining these as pacakges is pointless, we can probably just
