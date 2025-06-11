@@ -24,6 +24,8 @@
   };
   hardware.enableAllHardware = false;
 
+  powerManagement.cpuFreqGovernor = "performance";
+
   environment.systemPackages = [
     pkgs.bpftrace
     # It's annoying to recompile perf every time we change the kernel, so we
