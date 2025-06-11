@@ -194,6 +194,37 @@
             [ "SC2154" ]; # Shellcheck can't tell ARGS_* is set.
           text = builtins.readFile ./src/benchmarks-wrapper.sh;
         };
+        # Package that compiles a kernel, as a "benchmark"
+        compile-kernel =
+          let
+            kernel = self.kernelPackages.x86_64-linux.nixos.kernel;
+          in pkgs.writeShellApplication {
+            name = "compile-kernel";
+            runtimeInputs = with pkgs; [ libelf elfutils.dev gnumake gcc bison flex bc rsync ];
+            text = ''
+              # Nix does this for you in the build environment but doesn't
+              # really make libraries available to the toolchain at runtime.
+              # Normally I think people would just use a nix-shell or something
+              # that provides the relevant wrappers? I'm not sure, I might be
+              # barking up the wrong tree.
+              # Anyway, here's a super simple way to make the necessary
+              # libraries available:
+              export HOSTCFLAGS="-isystem ${pkgs.elfutils.dev}/include"
+              export HOSTLDFLAGS="-L ${pkgs.elfutils.out}/lib"
+              export HOSTCFLAGS="$HOSTCFLAGS -isystem ${pkgs.openssl.dev}/include"
+              export HOSTLDFLAGS="$HOSTLDFLAGS -L ${pkgs.openssl.out}/lib"
+
+              output="$(mktemp -d)"
+              trap 'rm -rf $output' EXIT
+              echo "Unpacking kernel source ${kernel.src} in $output"
+              cd "$output"
+              tar xJf ${kernel.src}
+              cd "linux-${kernel.version}"
+
+              make -j defconfig
+              make -sj"$(nproc)" vmlinux
+            '';
+          };
         # We donly do this for the x86 kselftests because building these tests
         # is so annoying. The x86 ones are the only ones that I know can be
         # built without being fussy about the exact kernel config, and without
