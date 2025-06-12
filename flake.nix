@@ -146,6 +146,7 @@
                 # This goes encoded into the /etc/os-release as VARIANT_ID=
                 system.nixos.variant_id = name;
                 environment.systemPackages =
+                  [pkgs.fio] ++
                   builtins.attrValues self.targetPackages.x86_64-linux;
               }
             ] ++ variant.machine.modules;
@@ -357,7 +358,7 @@
           # Directly expose the dependencies of this script so it can be run
           # directly from source for convenient development.
           ++ benchmarkVariantsDeps
-          ++ [ devlib workload-automation ];
+          ++ builtins.attrValues self.packages.x86_64-linux;
       };
 
       apps.x86_64-linux = {

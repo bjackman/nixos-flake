@@ -15,8 +15,8 @@
 config:
   device: generic_linux
   device_config:
-    host: 'localhost'
+    host: 'aethelred.zrh.corp.google.com'
     username: 'brendan'
-    port: 2222
+    keyfile: '/usr/local/google/home/jackmanb/.ssh/id_rsa'
 workloads:
-- stress-ng
+- fio
