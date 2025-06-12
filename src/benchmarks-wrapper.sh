@@ -2,13 +2,14 @@
 
 DOC="
 Usage:
-    benchmarks-wrapper [--out-dir DIR] [--instrument]
+    benchmarks-wrapper [--out-dir DIR] [--instrument] BENCHMARK
     benchmarks-wrapper --help
 
 Options:
     -h --help              Show this screen.
     --instrument           Run instrumentation for these benchmarks
     -o DIR --out-dir DIR   Directory to dump results in. Default uses mktemp.
+    BENCHMARK              Either 'fio' or 'compile-kernel'
 "
 eval "$(docopts -G ARGS -h "$DOC" : "$@")"
 
@@ -57,22 +58,29 @@ if "$ARGS_instrument"; then
 fi
 
 for i in $(seq 5); do
-    # This script encodes assumptions about the host system, check them.
-    if [ "$(findmnt_fstype /tmp)" != "tmpfs" ]; then
-        echo "/tmp is not a tmpfs"
-        exit 1
-    fi
-    fio --name=randread_tmpfs \
-        --rw=randread --size=1G --blocksize=4K --directory=/tmp \
-        --output="$OUT_DIR/fio_output_tmpfs_$i.json" --output-format=json+
+    if [ "$ARGS_BENCHMARK" == "fio" ]; then
+        # This script encodes assumptions about the host system, check them.
+        if [ "$(findmnt_fstype /tmp)" != "tmpfs" ]; then
+            echo "/tmp is not a tmpfs"
+            exit 1
+        fi
+        fio --name=randread_tmpfs \
+            --rw=randread --size=1G --blocksize=4K --directory=/tmp \
+            --output="$OUT_DIR/fio_output_tmpfs_$i.json" --output-format=json+
 
-    if [ "$(findmnt_fstype /var/tmp)" != "ext4" ]; then
-        echo "/tmp is not a tmpfs"
-        exit 1
+        if [ "$(findmnt_fstype /var/tmp)" != "ext4" ]; then
+            echo "/tmp is not a tmpfs"
+            exit 1
+        fi
+        fio --name=randread_ext4 \
+            --rw=randread --size=1G --blocksize=4K --directory=/tmp \
+            --output="$OUT_DIR/fio_output_ext4_$i.json" --output-format=json+
+    else
+        before_ns="$(date +s%N)"
+        compile-kernel
+        after_ns="$(date +s%N)"
+        echo "$(( "$after_ns" - "$before_ns" ))" > "$OUT_DIR/compile-kernel_elapsed_ns_$i"
     fi
-    fio --name=randread_ext4 \
-        --rw=randread --size=1G --blocksize=4K --directory=/tmp \
-        --output="$OUT_DIR/fio_output_ext4_$i.json" --output-format=json+
 done
 
 if "$ARGS_instrument"; then

@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Usage:
-#     benchmark-variants [--result-db RESULT_DB] [--instrument] [--ssh-port PORT] HOST VARIANT [VARIANT...]
+#     benchmark-variants [--result-db RESULT_DB] [--instrument] [--ssh-port PORT] --benchmark BENCHMARK HOST VARIANT [VARIANT...]
 #     benchmark-variants --help
 #
 # Options:
@@ -9,6 +9,7 @@
 #     --instrument           Run instrumentation for these benchmarks
 #     --result-db RESULT_DB  Magic result database to upload to [default: ./results].
 #     --ssh-port PORT        Port for SSH [default: 22]
+#     --benchmark BENCHMARK  Either 'fio' or 'compile-kernel'
 #     HOST                   Hostname/IP of target. All other options (port, user) hardcoded.
 #     VARIANT                System variant to use for nixos-rebuild (e.g. aethelred-asi-off).
 
@@ -58,7 +59,7 @@ EOF
     REMOTE_RESULTS_DIR=/tmp/benchmark-results
     # shellcheck disable=SC2029
     do_ssh "rm -rf $REMOTE_RESULTS_DIR; mkdir $REMOTE_RESULTS_DIR"
-    cmd="benchmarks-wrapper --out-dir $REMOTE_RESULTS_DIR"
+    cmd="benchmarks-wrapper --out-dir $REMOTE_RESULTS_DIR $ARGS_benchmark"
     if "$ARGS_instrument"; then
         cmd="$cmd --instrument"
     fi
@@ -71,5 +72,5 @@ EOF
     # Hash them and store them in the format required by my cool secret
     # benchmarking result schema: $name:$hash.
     # This will import to the default Falba DB location i.e. ./results/
-    falba import nixos-asi-benchmarks "$local_results_dir"/*
+    falba import $ARGS_benchmark "$local_results_dir"/*
 done
