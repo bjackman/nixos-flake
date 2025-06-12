@@ -76,9 +76,9 @@ for i in $(seq 5); do
             --rw=randread --size=1G --blocksize=4K --directory=/tmp \
             --output="$OUT_DIR/fio_output_ext4_$i.json" --output-format=json+
     else
-        before_ns="$(date +s%N)"
+        before_ns="$(date +%s%N)"
         compile-kernel
-        after_ns="$(date +s%N)"
+        after_ns="$(date +%s%N)"
         echo "$(( "$after_ns" - "$before_ns" ))" > "$OUT_DIR/compile-kernel_elapsed_ns_$i"
     fi
 done
