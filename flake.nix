@@ -221,7 +221,7 @@
               tar xJf ${kernel.src}
               cd "linux-${kernel.version}"
 
-              make -j defconfig
+              make -sj tinyconfig
               make -sj"$(nproc)" vmlinux
             '';
           };
