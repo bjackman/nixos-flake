@@ -30,7 +30,14 @@ else
     CONFIG_REVISION="$(git rev-parse "$ARGS_config_revision")"
 fi
 
+if "$ARGS_instrumented"; then
+    INSTRUMENTED=true
+else
+    # The enricher only ever sets the value to true.
+    INSTRUMENTED=none
+fi
+
 falba compare \
-    --fact-eq instrumented "$ARGS_instrumented" \
+    --fact-eq-bool instrumented "$INSTRUMENTED" \
     --fact-eq nixos_configuration_revision "$CONFIG_REVISION" \
     os_release_variant_id "$ARGS_metric"
