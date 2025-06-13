@@ -39,6 +39,12 @@ if [ -n "$( ls -A "$OUT_DIR" )" ]; then
     exit 1
 fi
 
+if [ "$ARGS_benchmark" = "fio" ]; then
+    ITERATIONS=10
+else
+    ITERATIONS=3
+fi
+
 # We'll record the version of the system, to be as hermetic as possible,
 # bail if there have been configuration changes since the last reboot.
 if [ ! -d /run/current-system ]; then
@@ -56,7 +62,7 @@ if "$ARGS_instrument"; then
     bpftrace_pid=$!
 fi
 
-for i in $(seq 5); do
+for i in $(seq "$ITERATIONS"); do
     if [ "$ARGS_benchmark" == "fio" ]; then
         # This script encodes assumptions about the host system, check them.
         if [ "$(findmnt_fstype /tmp)" != "tmpfs" ]; then
