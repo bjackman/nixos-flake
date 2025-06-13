@@ -54,6 +54,7 @@ elif [ "$(readlink /run/current-system)" != "$(readlink /run/booted-system)" ]; 
 else
     cp /etc/os-release "$OUT_DIR"/etc_os-release
     nixos-version --json > "$OUT_DIR"/nixos-version.json
+    readlink /run/current-system > "$OUT_DIR"/nixos-system.txt
 fi
 
 if "$ARGS_instrument"; then
