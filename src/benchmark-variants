@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Usage:
-#     benchmark-variants [--result-db RESULT_DB] [--instrument] [--ssh-port PORT] --benchmark BENCHMARK HOST VARIANT [VARIANT...]
+#     benchmark-variants [options] --benchmark BENCHMARK HOST VARIANT [VARIANT...]
 #     benchmark-variants --help
 #
 # Options:
