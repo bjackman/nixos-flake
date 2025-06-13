@@ -79,7 +79,7 @@ for i in $(seq 5); do
         before_ns="$(date +%s%N)"
         compile-kernel
         after_ns="$(date +%s%N)"
-        echo "$(( "$after_ns" - "$before_ns" ))" > "$OUT_DIR/compile-kernel_elapsed_ns_$i"
+        echo "$(( after_ns - before_ns ))" > "$OUT_DIR/compile-kernel_elapsed_ns_$i"
     fi
 done
 
