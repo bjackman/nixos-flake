@@ -1,17 +1,17 @@
 #!/bin/bash
 #
 # Usage:
-#     benchmark-variants [options] --benchmark BENCHMARK HOST VARIANT [VARIANT...]
+#     benchmark-variants [options] --benchmark <benchmark> <host> <variant>...
 #     benchmark-variants --help
 #
 # Options:
-#     -h --help              Show this screen.
-#     --instrument           Run instrumentation for these benchmarks
-#     --result-db RESULT_DB  Magic result database to upload to [default: ./results].
-#     --ssh-port PORT        Port for SSH [default: 22]
-#     --benchmark BENCHMARK  Either 'fio' or 'compile-kernel'
-#     HOST                   Hostname/IP of target. All other options (port, user) hardcoded.
-#     VARIANT                System variant to use for nixos-rebuild (e.g. aethelred-asi-off).
+#     -h --help                Show this screen.
+#     --instrument             Run instrumentation for these benchmarks
+#     --result-db RESULT_DB    Magic result database to upload to [default: ./results].
+#     --ssh-port PORT          Port for SSH [default: 22]
+#     --benchmark <benchmark>  Either 'fio' or 'compile-kernel'
+#     <host>                   Hostname/IP of target. All other options (port, user) hardcoded.
+#     <variant>                System variant to use for nixos-rebuild (e.g. aethelred-asi-off).
 
 NIX_SSHOPTS=${NIX_SSHOPTS:-}
 
@@ -22,7 +22,7 @@ source docopts.sh --auto -G "$@"
 USER=brendan  # good user, good 2 hard code
 
 function do_ssh() {
-    ssh -p "$ARGS_ssh_port" "$USER@$ARGS_HOST" "$@"
+    ssh -p "$ARGS_ssh_port" "$USER@$ARGS_host" "$@"
 }
 
 if [ -d results-latest ]; then
@@ -30,12 +30,12 @@ if [ -d results-latest ]; then
 fi
 mkdir results-latest
 
-for variant in "${ARGS_VARIANT[@]}"; do
+for variant in "${ARGS_variant[@]}"; do
     NIX_SSHOPTS="$NIX_SSHOPTS -p $ARGS_ssh_port" nixos-rebuild \
-        --flake ".#$variant" --target-host "$USER@$ARGS_HOST" --use-remote-sudo switch
+        --flake ".#$variant" --target-host "$USER@$ARGS_host" --use-remote-sudo switch
     # Use boot.json as a funny hack to detect if we need to reboot. I am not
     # that confident in this trick...
-    ssh "$USER@$ARGS_HOST" <<EOF
+    ssh "$USER@$ARGS_host" <<EOF
         if ! cmp /run/current-system/boot.json /run/booted-system/boot.json; then
             sudo reboot
         else
@@ -46,7 +46,7 @@ EOF
     # Wait until the SSH port becomes visible.
     # -z = scan only,  -w5 = 5s timeout
     deadline_s=$(($(date +%s) + 120))
-    while ! ssh -o ConnectTimeout=5 "$USER@$ARGS_HOST" echo; do
+    while ! ssh -o ConnectTimeout=5 "$USER@$ARGS_host" echo; do
         current_time_s=$(date +%s)
         if (( current_time_s > deadline_s )); then
             echo "Timed out after 2m waiting for host SSH port to appear"
@@ -67,7 +67,7 @@ EOF
 
     # Fetch the results
     local_results_dir=$(mktemp -d)
-    scp -P "$ARGS_ssh_port" -r "$USER@$ARGS_HOST":"$REMOTE_RESULTS_DIR/*" "$local_results_dir"
+    scp -P "$ARGS_ssh_port" -r "$USER@$ARGS_host":"$REMOTE_RESULTS_DIR/*" "$local_results_dir"
 
     # Hash them and store them in the format required by my cool secret
     # benchmarking result schema: $name:$hash.
