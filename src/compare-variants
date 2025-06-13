@@ -3,7 +3,7 @@
 # Wrapper for 'falba compare with some ASI-benchmarking specific defaults.
 #
 # Usage:
-#     compare-variants [--config-revision REV] [--instrumented] [--metric METRIC]
+#     compare-variants [--config-revision REV] [--instrumented] [--metric METRIC] [ --test TEST ]
 #     compare-variants --help
 #
 # Options:
@@ -15,6 +15,7 @@
 #                            hash.
 #     --instrumented         Compare instrumented runs instead of ignoring them.
 #     --metric METRIC        Metric to compare [default: fio_randread_tmpfs_read_iops].
+#     --test TEST            Forwarded to Falba CLI's --test arg.
 
 set -eu -o pipefail
 
@@ -37,7 +38,12 @@ else
     INSTRUMENTED=none
 fi
 
+declare -a extra_args
+if [ -n "$ARGS_test" ]; then
+    extra_args+=("--test" "$ARGS_test")
+fi
+
 falba compare \
     --fact-eq-bool instrumented "$INSTRUMENTED" \
     --fact-eq nixos_configuration_revision "$CONFIG_REVISION" \
-    os_release_variant_id "$ARGS_metric"
+    os_release_variant_id "$ARGS_metric" "${extra_args[@]}"
