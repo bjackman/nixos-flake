@@ -190,9 +190,11 @@
         benchmarksWrapper = pkgs.writeShellApplication {
           name = "benchmarks-wrapper";
           runtimeInputs = [ bpftraceScripts pkgs.docopts pkgs.fio pkgs.jq compile-kernel ];
+          text = builtins.readFile ./src/benchmarks-wrapper.sh;
           excludeShellChecks =
             [ "SC2154" ]; # Shellcheck can't tell ARGS_* is set.
-          text = builtins.readFile ./src/benchmarks-wrapper.sh;
+          extraShellCheckFlags =
+            [ "--external-sources" "--source-path=${pkgs.docopts}/bin" ];
         };
         # Package that compiles a kernel, as a "benchmark"
         compile-kernel =

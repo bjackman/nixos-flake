@@ -1,19 +1,18 @@
 #!/bin/bash
-
-DOC="
-Usage:
-    benchmarks-wrapper [--out-dir DIR] [--instrument] BENCHMARK
-    benchmarks-wrapper --help
-
-Options:
-    -h --help              Show this screen.
-    --instrument           Run instrumentation for these benchmarks
-    -o DIR --out-dir DIR   Directory to dump results in. Default uses mktemp.
-    BENCHMARK              Either 'fio' or 'compile-kernel'
-"
-eval "$(docopts -G ARGS -h "$DOC" : "$@")"
+#
+# Usage:
+#     benchmarks-wrapper [--out-dir DIR] [--instrument] <benchmark>
+#     benchmarks-wrapper --help
+#
+# Options:
+#     -h --help              Show this screen.
+#     --instrument           Run instrumentation for these benchmarks
+#     -o DIR --out-dir DIR   Directory to dump results in. Default uses mktemp.
+#     <benchmark>            Either 'fio' or 'compile-kernel'
 
 set -e
+
+source docopts.sh --auto -G "$@"
 
 # Get the type of the filesystem that a file is on.
 function findmnt_fstype() {
@@ -58,7 +57,7 @@ if "$ARGS_instrument"; then
 fi
 
 for i in $(seq 5); do
-    if [ "$ARGS_BENCHMARK" == "fio" ]; then
+    if [ "$ARGS_benchmark" == "fio" ]; then
         # This script encodes assumptions about the host system, check them.
         if [ "$(findmnt_fstype /tmp)" != "tmpfs" ]; then
             echo "/tmp is not a tmpfs"
