@@ -87,6 +87,30 @@
               # For newer kernels instead use setcpuid.
               kernelParams = [ "asi=off" "force_cpu_bug=retbleed" ];
             }
+            {
+              name = "asi-page-cache-fix-alloc-ephmap";
+              kernelPackages = kernelPackages.asi-page-cache-fix;
+              # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
+              # For newer kernels instead use setcpuid.
+              kernelParams = [
+                "asi=off"
+                "force_cpu_bug=retbleed"
+                "page_alloc_ephmap=always_alloc"
+                "shmem_ephmap=always_alloc"
+              ];
+            }
+            {
+              name = "asi-page-cache-fix-use-ephmap";
+              kernelPackages = kernelPackages.asi-page-cache-fix;
+              # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
+              # For newer kernels instead use setcpuid.
+              kernelParams = [
+                "asi=off"
+                "force_cpu_bug=retbleed"
+                "page_alloc_ephmap=always_use"
+                "shmem_ephmap=always_use"
+              ];
+            }
           ];
           # "aethlered" is intended for the big chungus in the office on my
           # desk-area-network. The only thing special about it is the networking
