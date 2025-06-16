@@ -43,7 +43,12 @@ if [ -n "$ARGS_test" ]; then
     extra_args+=("--test" "$ARGS_test")
 fi
 
+# nixos_system is fully derivative of the other facts so we ignore that.
+# (This is a workaround for a silly Falba limitation, it should be able to
+# detect that it doesn't matter).
+
 falba compare \
     --fact-eq-bool instrumented "$INSTRUMENTED" \
     --fact-eq nixos_configuration_revision "$CONFIG_REVISION" \
+    --ignore-fact nixos_system \
     os_release_variant_id "$ARGS_metric" "${extra_args[@]}"
