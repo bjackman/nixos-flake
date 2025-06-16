@@ -67,20 +67,6 @@
               kernelParams = [ "force_cpu_bug=retbleed" ];
             }
             {
-              name = "asi-off-vmap-files";
-              kernelPackages = kernelPackages.asi-page-cache-fix;
-              # WARNING: force_cpu_bug and vmap_files were added as hacks in my
-              # asi/fix-page-cache branch.  For newer kernels instead use setcpuid.
-              kernelParams = [ "force_cpu_bug=retbleed" "vmap_files=yes" ];
-            }
-            {
-              name = "asi-off-vmap-files-only";
-              kernelPackages = kernelPackages.asi-page-cache-fix;
-              # WARNING: force_cpu_bug and vmap_files were added as hacks in my
-              # asi/fix-page-cache branch.  For newer kernels instead use setcpuid.
-              kernelParams = [ "force_cpu_bug=retbleed" "vmap_files=only" ];
-            }
-            {
               name = "asi-on";
               kernelPackages = kernelPackages.asi-rfcv2-preview;
               # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
