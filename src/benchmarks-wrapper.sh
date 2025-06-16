@@ -1,14 +1,15 @@
 #!/bin/bash
 #
 # Usage:
-#     benchmarks-wrapper [--out-dir DIR] [--instrument] <benchmark>
+#     benchmarks-wrapper [--out-dir DIR] [--instrument] [--iterations <iterations>] <benchmark>
 #     benchmarks-wrapper --help
 #
 # Options:
-#     -h --help              Show this screen.
-#     --instrument           Run instrumentation for these benchmarks
-#     -o DIR --out-dir DIR   Directory to dump results in. Default uses mktemp.
-#     <benchmark>            Either 'fio' or 'compile-kernel'
+#     -h --help                  Show this screen.
+#     --instrument               Run instrumentation for these benchmarks
+#     -o DIR --out-dir <dir>     Directory to dump results in. Default uses mktemp.
+#     --iterations <iterations>  Iterations to run. Default depends on benhchmark.
+#     <benchmark>                Either 'fio' or 'compile-kernel'
 
 set -e
 
@@ -39,10 +40,13 @@ if [ -n "$( ls -A "$OUT_DIR" )" ]; then
     exit 1
 fi
 
-if [ "$ARGS_benchmark" = "fio" ]; then
-    ITERATIONS=10
-else
-    ITERATIONS=3
+ITERATIONS="$ARGS_iterations"
+if [ -z "$ITERATIONS" ]; then
+    if [ "$ARGS_benchmark" = "fio" ]; then
+        ITERATIONS=10
+    else
+        ITERATIONS=3
+    fi
 fi
 
 # We'll record the version of the system, to be as hermetic as possible,
