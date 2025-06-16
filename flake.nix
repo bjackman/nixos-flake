@@ -67,17 +67,6 @@
               kernelParams = [ "force_cpu_bug=retbleed" ];
             }
             {
-              # For comparing ASI against PTI. A version with the ASI codebase
-              # present but disabled, with PTI forced-on, and with fake retbleed.
-              # This is a bit messy coz we have to reset mitigations= to auto
-              # (overriding baseKernelParams) otherwise pti=on is ignored.
-              name = "asi-pti";
-              kernelPackages = kernelPackages.asi-page-cache-fix;
-              # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
-              # For newer kernels instead use setcpuid.
-              kernelParams = [ "mitigations=auto" "force_cpu_bug=retbleed" "pti=on" ];
-            }
-            {
               name = "asi-off-vmap-files";
               kernelPackages = kernelPackages.asi-page-cache-fix;
               # WARNING: force_cpu_bug and vmap_files were added as hacks in my
