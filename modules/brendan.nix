@@ -29,6 +29,7 @@
     }];
     graphics = false;
     memorySize = 16 * 1024;  # This is in "megabytes"
+    cores = 16;  # This is probably actually logical CPUs.
   };
 }
 
