@@ -45,118 +45,98 @@
     in {
       nixosModules.brendan = import ./modules/brendan.nix;
       nixosConfigurations = let
-        # This cartesianProduct call will produce a list of attrsets, with each
-        # possible combination of the values for .kernel and .machine.
-        variants = nixpkgs.lib.cartesianProduct {
-          kernel = [
+        kernelVariants = [
+          {
+            name = "nixos";
+            kernelPackages = kernelPackages.nixos;
+            kernelParams = [ ];
+          }
+          {
+            name = "base";
+            kernelPackages = kernelPackages.v6_14;
+            kernelParams = [ ];
+          }
+          {
+            name = "asi-off";
+            kernelPackages = kernelPackages.asi-page-cache-fix;
+            # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
+            # For newer kernels instead use setcpuid.
+            kernelParams = [ "force_cpu_bug=retbleed" ];
+          }
+          {
+            name = "asi-on";
+            kernelPackages = kernelPackages.asi-rfcv2-preview;
+            # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
+            # For newer kernels instead use setcpuid.
+            kernelParams = [ "asi=on" "force_cpu_bug=retbleed" ];
+          }
+          {
+            name = "asi-page-cache-fix";
+            kernelPackages = kernelPackages.asi-page-cache-fix;
+            # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
+            # For newer kernels instead use setcpuid.
+            kernelParams = [ "asi=on" "force_cpu_bug=retbleed" ];
+          }
+          {
+            name = "asi-page-cache-fix-off";
+            kernelPackages = kernelPackages.asi-page-cache-fix;
+            # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
+            # For newer kernels instead use setcpuid.
+            kernelParams = [ "asi=off" "force_cpu_bug=retbleed" ];
+          }
+          {
+            name = "asi-page-cache-fix-alloc-ephmap";
+            kernelPackages = kernelPackages.asi-page-cache-fix;
+            # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
+            # For newer kernels instead use setcpuid.
+            kernelParams = [
+              "asi=off"
+              "force_cpu_bug=retbleed"
+              "page_alloc_ephmap=always_alloc"
+              "shmem_ephmap=always_alloc"
+            ];
+          }
+          {
+            name = "asi-page-cache-fix-use-ephmap";
+            kernelPackages = kernelPackages.asi-page-cache-fix;
+            # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
+            # For newer kernels instead use setcpuid.
+            kernelParams = [
+              "asi=off"
+              "force_cpu_bug=retbleed"
+              "page_alloc_ephmap=always_use"
+              "shmem_ephmap=always_use"
+            ];
+          }
+        ];
+      in builtins.listToAttrs (map (kernelVariant: {
+        name = "aethelred-${kernelVariant.name}";
+        value = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            ./modules/brendan.nix
+            ./modules/common.nix
+            # "aethlered" is intended for the big chungus in the office on my
+            # desk-area-network. The only thing special about it is its
+            # hostname.
+            ./modules/aethelred.nix
+            ./modules/kernel.nix
             {
-              name = "nixos";
-              kernelPackages = kernelPackages.nixos;
-              kernelParams = [ ];
-            }
-            {
-              name = "base";
-              kernelPackages = kernelPackages.v6_14;
-              kernelParams = [ ];
-            }
-            {
-              name = "asi-off";
-              kernelPackages = kernelPackages.asi-page-cache-fix;
-              # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
-              # For newer kernels instead use setcpuid.
-              kernelParams = [ "force_cpu_bug=retbleed" ];
-            }
-            {
-              name = "asi-on";
-              kernelPackages = kernelPackages.asi-rfcv2-preview;
-              # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
-              # For newer kernels instead use setcpuid.
-              kernelParams = [ "asi=on" "force_cpu_bug=retbleed" ];
-            }
-            {
-              name = "asi-page-cache-fix";
-              kernelPackages = kernelPackages.asi-page-cache-fix;
-              # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
-              # For newer kernels instead use setcpuid.
-              kernelParams = [ "asi=on" "force_cpu_bug=retbleed" ];
-            }
-            {
-              name = "asi-page-cache-fix-off";
-              kernelPackages = kernelPackages.asi-page-cache-fix;
-              # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
-              # For newer kernels instead use setcpuid.
-              kernelParams = [ "asi=off" "force_cpu_bug=retbleed" ];
-            }
-            {
-              name = "asi-page-cache-fix-alloc-ephmap";
-              kernelPackages = kernelPackages.asi-page-cache-fix;
-              # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
-              # For newer kernels instead use setcpuid.
-              kernelParams = [
-                "asi=off"
-                "force_cpu_bug=retbleed"
-                "page_alloc_ephmap=always_alloc"
-                "shmem_ephmap=always_alloc"
-              ];
-            }
-            {
-              name = "asi-page-cache-fix-use-ephmap";
-              kernelPackages = kernelPackages.asi-page-cache-fix;
-              # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
-              # For newer kernels instead use setcpuid.
-              kernelParams = [
-                "asi=off"
-                "force_cpu_bug=retbleed"
-                "page_alloc_ephmap=always_use"
-                "shmem_ephmap=always_use"
-              ];
+              # Record the version of the flake, this will then be available
+              # from the `nixos-version` command.
+              system.configurationRevision = self.rev or "dirty";
+              # This goes encoded into the /etc/os-release as VARIANT_ID=
+              system.nixos.variant_id = kernelVariant.name;
+              environment.systemPackages =
+                builtins.attrValues self.targetPackages.x86_64-linux;
             }
           ];
-          # "aethlered" is intended for the big chungus in the office on my
-          # desk-area-network. The only thing special about it is the networking
-          # setup.
-          machine = [
-            {
-              name = "aethelred";
-              modules = [ ./modules/aethelred.nix ];
-            }
-            {
-              name = "base";
-              modules = [ ];
-            }
-          ];
-        };
-        # The inner map call will convert each of the variants into a NixOS
-        # configuration definition, so we'll have those in a list. But actually we
-        # need to output an attrset, so we convert the list into one using
-        # listToAttrs. That requires a list of attrsets with fields .name and
-        # .value.
-      in builtins.listToAttrs (map (variant:
-        let name = "${variant.machine.name}-${variant.kernel.name}";
-        in {
-          inherit name;
-          value = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [
-              ./modules/brendan.nix
-              ./modules/common.nix
-              ./modules/kernel.nix
-              {
-                # Record the version of the flake, this will then be available
-                # from the `nixos-version` command.
-                system.configurationRevision = self.rev or "dirty";
-                # This goes encoded into the /etc/os-release as VARIANT_ID=
-                system.nixos.variant_id = name;
-                environment.systemPackages =
-                  builtins.attrValues self.targetPackages.x86_64-linux;
-              }
-            ] ++ variant.machine.modules;
-            specialArgs = {
-              kernelPackages = variant.kernel.kernelPackages;
-              kernelParams = baseKernelParams ++ variant.kernel.kernelParams;
-            };
+          specialArgs = {
+            kernelPackages = kernelVariant.kernelPackages;
+            kernelParams = baseKernelParams ++ kernelVariant.kernelParams;
           };
-        }) variants);
+        };
+      }) kernelVariants);
 
       kernelPackages.x86_64-linux = {
         # NixOS's default kernel. This is just here so that I can work on these
