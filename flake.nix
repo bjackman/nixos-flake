@@ -199,7 +199,8 @@
         # Wrapper for actually running the benchmarks.
         benchmarksWrapper = pkgs.writeShellApplication {
           name = "benchmarks-wrapper";
-          runtimeInputs = [ bpftraceScripts pkgs.docopts pkgs.fio pkgs.jq compile-kernel ];
+          runtimeInputs =
+            [ bpftraceScripts pkgs.docopts pkgs.fio pkgs.jq compile-kernel ];
           text = builtins.readFile ./src/benchmarks-wrapper.sh;
           excludeShellChecks =
             [ "SC2154" ]; # Shellcheck can't tell ARGS_* is set.
@@ -208,11 +209,19 @@
         };
         # Package that compiles a kernel, as a "benchmark"
         compile-kernel =
-          let
-            kernel = self.kernelPackages.x86_64-linux.nixos.kernel;
+          let kernel = self.kernelPackages.x86_64-linux.nixos.kernel;
           in pkgs.writeShellApplication {
             name = "compile-kernel";
-            runtimeInputs = with pkgs; [ libelf elfutils.dev gnumake gcc bison flex bc rsync ];
+            runtimeInputs = with pkgs; [
+              libelf
+              elfutils.dev
+              gnumake
+              gcc
+              bison
+              flex
+              bc
+              rsync
+            ];
             text = ''
               # Nix does this for you in the build environment but doesn't
               # really make libraries available to the toolchain at runtime.
@@ -241,41 +250,40 @@
         # is so annoying. The x86 ones are the only ones that I know can be
         # built without being fussy about the exact kernel config, and without
         # requiring a full kernel build in the tree.
-        kselftests-x86 =
-          let
-            kernel = self.kernelPackages.x86_64-linux.nixos.kernel;
-            buildInstallFlags = [ "-C" "tools/testing/selftests" "TARGETS=x86" ];
+        kselftests-x86 = let
+          kernel = self.kernelPackages.x86_64-linux.nixos.kernel;
+          buildInstallFlags = [ "-C" "tools/testing/selftests" "TARGETS=x86" ];
           # multiStdenv gives us a toolchain with multilib support, which some
           # of the kselftests need.
-          in pkgs.multiStdenv.mkDerivation rec {
-            pname = "kselftests-x86";
-            version = kernel.version;
-            src = kernel.src;
-            # Not sure why but we need to explicitly include glibc, for both
-            # archs.
-            buildInputs = with pkgs; [
-              glibc
-              glibc.static
-              pkgsi686Linux.glibc
-              pkgsi686Linux.glibc.static
-            ];
-            nativeBuildInputs = with pkgs; [ bison flex bc rsync ];
-            configurePhase = ''make $makeFlags defconfig'';
-            preBuild = ''make $makeFlags headers'';
-            buildFlags = buildInstallFlags;
-            preInstall = ''
-              mkdir -p $out/bin
-              export KSFT_INSTALL_PATH=$out/bin
-            '';
-            installFlags = buildInstallFlags;
-            postInstall = ''ln -s $out/bin/run_kselftest.sh $out/bin/${pname}'';
-            enableParallelBuilding = true;
-          };
+        in pkgs.multiStdenv.mkDerivation rec {
+          pname = "kselftests-x86";
+          version = kernel.version;
+          src = kernel.src;
+          # Not sure why but we need to explicitly include glibc, for both
+          # archs.
+          buildInputs = with pkgs; [
+            glibc
+            glibc.static
+            pkgsi686Linux.glibc
+            pkgsi686Linux.glibc.static
+          ];
+          nativeBuildInputs = with pkgs; [ bison flex bc rsync ];
+          configurePhase = "make $makeFlags defconfig";
+          preBuild = "make $makeFlags headers";
+          buildFlags = buildInstallFlags;
+          preInstall = ''
+            mkdir -p $out/bin
+            export KSFT_INSTALL_PATH=$out/bin
+          '';
+          installFlags = buildInstallFlags;
+          postInstall = "ln -s $out/bin/run_kselftest.sh $out/bin/${pname}";
+          enableParallelBuilding = true;
+        };
         # Convenience helper for some tests I currently care about.
         kselftests-ldt = pkgs.writeShellApplication {
           name = "kselftests-ldt";
           runtimeInputs = [ kselftests-x86 ];
-          text = ''kselftests-x86 --test x86:ldt_gdt_32 --test x86:ldt_gdt_64'';
+          text = "kselftests-x86 --test x86:ldt_gdt_32 --test x86:ldt_gdt_64";
         };
       };
 
