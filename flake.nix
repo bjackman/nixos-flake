@@ -40,7 +40,7 @@
         pkgs.nixos-rebuild
         self.packages.x86_64-linux.falba-cli
       ];
-      baseKernelParams = [ "nokaslr" "mitigations=off" "init_on_alloc=0" ];
+      baseKernelParams = [ "nokaslr" "mitigations=off" "init_on_alloc=0" "earlyprintk=serial" ];
       kernelPackages = self.kernelPackages.x86_64-linux;
     in {
       nixosModules.brendan = import ./modules/brendan.nix;
