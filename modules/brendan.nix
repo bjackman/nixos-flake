@@ -28,6 +28,7 @@
       guest.port = 22;
     }];
     graphics = false;
+    memorySize = 16 * 1024;  # This is in "megabytes"
   };
 }
 
