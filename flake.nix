@@ -40,7 +40,13 @@
         pkgs.nixos-rebuild
         self.packages.x86_64-linux.falba-cli
       ];
-      baseKernelParams = [ "nokaslr" "mitigations=off" "init_on_alloc=0" "earlyprintk=serial" ];
+      baseKernelParams = [
+        "nokaslr" "mitigations=off" "init_on_alloc=0" "earlyprintk=serial"
+        # Got a bug in the la57 logic and I can't get QEMU to run with la57 for
+        # some reason. Think I'm gonna throw the buggy code away anyway so let's
+        # just kick this can down the road.
+        "no5lvl"
+      ];
       kernelPackages = self.kernelPackages.x86_64-linux;
     in {
       nixosModules.brendan = import ./modules/brendan.nix;
