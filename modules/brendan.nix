@@ -28,9 +28,6 @@
       guest.port = 22;
     }];
     graphics = false;
-    memorySize = 16 * 1024;  # This is in "megabytes"
-    cores = 16;  # This is probably actually logical CPUs.
-
     # This BIOS doesn't mess up the terminal and is apparently faster.
     qemu.options = [ "-bios" "qboot.rom" ];
   };
