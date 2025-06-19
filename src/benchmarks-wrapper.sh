@@ -5,11 +5,11 @@
 #     benchmarks-wrapper --help
 #
 # Options:
-#     -h --help                  Show this screen.
-#     --instrument               Run instrumentation for these benchmarks
-#     -o DIR --out-dir <dir>     Directory to dump results in. Default uses mktemp.
-#     --iterations <iterations>  Iterations to run. Default depends on benhchmark.
-#     <benchmark>                Either 'fio' or 'compile-kernel'
+#     -h --help                                  Show this screen.
+#     -i --instrument                            Run instrumentation for these benchmarks
+#     -o DIR --out-dir <dir>                     Directory to dump results in. Default uses mktemp.
+#     -n <iterations> --iterations <iterations>  Iterations to run. Default depends on benhchmark.
+#     <benchmark>                                Either 'fio' or 'compile-kernel'
 
 set -e
 
