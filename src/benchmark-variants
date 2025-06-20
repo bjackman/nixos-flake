@@ -25,11 +25,6 @@ function do_ssh() {
     ssh -p "$ARGS_ssh_port" "$USER@$ARGS_host" "$@"
 }
 
-if [ -d results-latest ]; then
-    rm -rf results-latest
-fi
-mkdir results-latest
-
 for variant in "${ARGS_variant[@]}"; do
     NIX_SSHOPTS="$NIX_SSHOPTS -p $ARGS_ssh_port" nixos-rebuild \
         --flake ".#$variant" --target-host "$USER@$ARGS_host" --use-remote-sudo switch
