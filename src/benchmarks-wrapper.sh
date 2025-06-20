@@ -57,7 +57,9 @@ elif [ "$(readlink /run/current-system)" != "$(readlink /run/booted-system)" ]; 
     echo "current-system not the same as booted-system, not capturing system data"
 else
     cp /etc/os-release "$OUT_DIR"/etc_os-release
-    nixos-version --json > "$OUT_DIR"/nixos-version.json
+    # Can't make this available via writeShellApplication as it's just something
+    # baked into the NixOS system, not a package in nixpkgs.
+    /run/current-system/sw/bin/nixos-version --json > "$OUT_DIR"/nixos-version.json
     readlink /run/current-system > "$OUT_DIR"/nixos-system.txt
 fi
 
