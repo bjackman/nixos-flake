@@ -118,26 +118,32 @@
             ];
           }
         ];
+        modules = [
+          ./modules/brendan.nix
+          ./modules/common.nix
+          ./modules/kernel.nix
+          {
+            # Record the version of the flake, this will then be available
+            # from the `nixos-version` command.
+            system.configurationRevision = self.rev or "dirty";
+            environment.systemPackages =
+              builtins.attrValues self.targetPackages.x86_64-linux;
+          }
+        ];
       in builtins.listToAttrs (map (kernelVariant: {
         name = "aethelred-${kernelVariant.name}";
         value = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
-          modules = [
-            ./modules/brendan.nix
-            ./modules/common.nix
+          modules = modules ++ [
             # "aethlered" is intended for the big chungus in the office on my
             # desk-area-network. The only thing special about it is its
             # hostname.
             ./modules/aethelred.nix
-            ./modules/kernel.nix
             {
-              # Record the version of the flake, this will then be available
-              # from the `nixos-version` command.
-              system.configurationRevision = self.rev or "dirty";
               # This goes encoded into the /etc/os-release as VARIANT_ID=
               system.nixos.variant_id = kernelVariant.name;
               environment.systemPackages =
-                builtins.attrValues self.targetPackages.x86_64-linux;
+                [ self.nixosConfigurations.guest.config.system.build.vm ];
             }
           ];
           specialArgs = {
@@ -145,7 +151,20 @@
             kernelParams = baseKernelParams ++ kernelVariant.kernelParams;
           };
         };
-      }) kernelVariants);
+      }) kernelVariants) // {
+        # For running a guest VM that is basically the same as the other
+        # nixosConfigurations. It needs to be defined separately to avoid
+        # infinite recursion in the config. For the guets we just leave the
+        # kernel setup to be the NixOS default.
+        guest = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          inherit modules;
+          specialArgs = {
+            kernelPackages = kernelPackages.v6_14;
+            kernelParams = [ ];
+          };
+        };
+      };
 
       kernelPackages.x86_64-linux = {
         # NixOS's default kernel. This is just here so that I can work on these
