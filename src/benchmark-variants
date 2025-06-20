@@ -10,6 +10,7 @@
 #     --result-db RESULT_DB    Magic result database to upload to [default: ./results].
 #     --ssh-port PORT          Port for SSH [default: 22]
 #     --benchmark <benchmark>  Either 'fio' or 'compile-kernel'
+#     --guest                  Run the benchmark in a guest instead of in the host
 #     <host>                   Hostname/IP of target. All other options (port, user) hardcoded.
 #     <variant>                System variant to use for nixos-rebuild (e.g. aethelred-asi-off).
 
@@ -54,11 +55,20 @@ EOF
     REMOTE_RESULTS_DIR=/tmp/benchmark-results
     # shellcheck disable=SC2029
     do_ssh "rm -rf $REMOTE_RESULTS_DIR; mkdir $REMOTE_RESULTS_DIR"
-    cmd="benchmarks-wrapper --out-dir $REMOTE_RESULTS_DIR $ARGS_benchmark"
-    if "$ARGS_instrument"; then
-        cmd="$cmd --instrument"
+    if "$ARGS_guest"; then
+        cmd="benchmarks-wrapper --out-dir $REMOTE_RESULTS_DIR $ARGS_benchmark"
+        if "$ARGS_instrument"; then
+            cmd="$cmd --instrument"
+        fi
+        do_ssh "$cmd"
+    else
+        if "$ARGS_instrument"; then
+            # Ah lads, I've really fucked this one up
+            echo "Cannot set --instrument and --guest, sorry"
+            exit 1
+        fi
+        do_ssh "benchmarks-guest --out-dir $REMOTE_RESULTS_DIR $ARGS_benchmark"
     fi
-    do_ssh "$cmd"
 
     # Fetch the results
     local_results_dir=$(mktemp -d)
@@ -67,5 +77,10 @@ EOF
     # Hash them and store them in the format required by my cool secret
     # benchmarking result schema: $name:$hash.
     # This will import to the default Falba DB location i.e. ./results/
-    falba import $ARGS_benchmark "$local_results_dir"/*
+    if "$ARGS_guest"; then
+        test_name="$ARGS_benchmark"_guest
+    else
+        test_name="$ARGS_benchmark"_host
+    fi
+    falba import "$test_name" "$local_results_dir"/*
 done
