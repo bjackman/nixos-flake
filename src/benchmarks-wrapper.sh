@@ -33,20 +33,6 @@ if [ -n "$( ls -A "$OUT_DIR" )" ]; then
     exit 1
 fi
 
-# We'll record the version of the system, to be as hermetic as possible,
-# bail if there have been configuration changes since the last reboot.
-if [ ! -d /run/current-system ]; then
-    echo "No /run/current-system - not NixOS? Not capturing system data"
-elif [ "$(readlink /run/current-system)" != "$(readlink /run/booted-system)" ]; then
-    echo "current-system not the same as booted-system, not capturing system data"
-else
-    cp /etc/os-release "$OUT_DIR"/etc_os-release
-    # Can't make this available via writeShellApplication as it's just something
-    # baked into the NixOS system, not a package in nixpkgs.
-    /run/current-system/sw/bin/nixos-version --json > "$OUT_DIR"/nixos-version.json
-    readlink /run/current-system > "$OUT_DIR"/nixos-system.txt
-fi
-
 if "$ARGS_instrument"; then
     # shellcheck disable=SC2024
     sudo bpftrace_asi_exits &> "$OUT_DIR"/bpftrace_asi_exits.log &
@@ -74,6 +60,20 @@ fi
 
 if "$ARGS_instrument"; then
     sudo kill -SIGINT "$bpftrace_pid"
+fi
+
+# We'll record the version of the system, to be as hermetic as possible,
+# bail if there have been configuration changes since the last reboot.
+if [ ! -d /run/current-system ]; then
+    echo "No /run/current-system - not NixOS? Not capturing system data"
+elif [ "$(readlink /run/current-system)" != "$(readlink /run/booted-system)" ]; then
+    echo "current-system not the same as booted-system, not capturing system data"
+else
+    cp /etc/os-release "$OUT_DIR"/etc_os-release
+    # Can't make this available via writeShellApplication as it's just something
+    # baked into the NixOS system, not a package in nixpkgs.
+    /run/current-system/sw/bin/nixos-version --json > "$OUT_DIR"/nixos-version.json
+    readlink /run/current-system > "$OUT_DIR"/nixos-system.txt
 fi
 
 echo FIO results in "$OUT_DIR"
