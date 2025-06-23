@@ -2,8 +2,8 @@
   inputs = {
     nixpkgs = { url = "github:nixos/nixpkgs/nixos-25.05"; };
     falba = {
-      url = "github:bjackman/falba";
-      flake = false;
+      url = "github:bjackman/falba-go";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     kernel-6_16 = {
       url = "github:torvalds/linux?ref=master";
@@ -42,7 +42,7 @@
       benchmarkVariantsDeps = [
         pkgs.docopts
         pkgs.nixos-rebuild
-        self.packages.x86_64-linux.falba-cli
+        inputs.falba.packages.x86_64-linux.falba-with-duckdb
       ];
       baseKernelParams = [
         "nokaslr"
@@ -303,16 +303,6 @@
           extraShellCheckFlags =
             [ "--external-sources" "--source-path=${pkgs.docopts}/bin" ];
         };
-        falba = with pkgs.python3Packages;
-          buildPythonPackage {
-            pname = "falba";
-            version = "0.1.0";
-            pyproject = true;
-            src = inputs.falba;
-            build-system = [ setuptools setuptools-scm ];
-            propagatedBuildInputs = [ polars ];
-          };
-        falba-cli = pkgs.python3Packages.toPythonApplication falba;
       };
 
       # This lets you run `nix develop` and you get a shell with `nil` in it,

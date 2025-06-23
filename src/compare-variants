@@ -47,8 +47,7 @@ fi
 # (This is a workaround for a silly Falba limitation, it should be able to
 # detect that it doesn't matter).
 
-falba compare \
-    --fact-eq-bool instrumented "$INSTRUMENTED" \
-    --fact-eq nixos_configuration_revision "$CONFIG_REVISION" \
-    --ignore-fact nixos_system \
-    os_release_variant_id "$ARGS_metric" "${extra_args[@]}"
+falba --result-db ./results/ cmp --filter "\
+        facts.instrumented = $INSTRUMENTED AND \
+        facts.configuration_revision = \"CONFIG_REVISION\"" \
+    --fact os_release_variant_id --metric "$ARGS_metric" "${extra_args[@]}"
