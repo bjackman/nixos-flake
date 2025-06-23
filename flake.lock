@@ -1,18 +1,41 @@
 {
   "nodes": {
     "falba": {
-      "flake": false,
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
       "locked": {
-        "lastModified": 1750667008,
-        "narHash": "sha256-yWPDDwFJ/PMaKRO2W598exoSbwhsL4F9r8MQBQG8iyM=",
+        "lastModified": 1750679467,
+        "narHash": "sha256-PuLy9rQu/nxKBMyDudysomxGGTyPHTdm+4OR/KsMkMc=",
         "owner": "bjackman",
-        "repo": "falba",
-        "rev": "1c35d88579201064c726849e5f31f812c1e467b8",
+        "repo": "falba-go",
+        "rev": "2eeed1144b2d97f46bd7ad64693ae44e4d403ad9",
         "type": "github"
       },
       "original": {
         "owner": "bjackman",
-        "repo": "falba",
+        "repo": "falba-go",
+        "type": "github"
+      }
+    },
+    "flake-utils": {
+      "inputs": {
+        "systems": "systems"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
         "type": "github"
       }
     },
@@ -90,6 +113,21 @@
         "kernel-asi-page-cache-fix": "kernel-asi-page-cache-fix",
         "kernel-asi-rfcv2-preview": "kernel-asi-rfcv2-preview",
         "nixpkgs": "nixpkgs"
+      }
+    },
+    "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
       }
     }
   },
