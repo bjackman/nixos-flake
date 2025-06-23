@@ -221,15 +221,33 @@
           '';
           buildInputs = [ pkgs.makeWrapper ];
         };
-        # Wrapper for actually running the benchmarks.
-        benchmarksWrapper = pkgs.writeShellApplication {
-          name = "benchmarks-wrapper";
-          runtimeInputs = [ bpftraceScripts compile-kernel ] ++ (with pkgs; [
+        # Very thin inner wrapper, mostly just a helper for benchmarks-wrapper.
+        # This runs inside the guest when running on a VM.
+        runBenchmark = pkgs.writeShellApplication {
+          name = "run-benchmark";
+          runtimeInputs = [ compile-kernel ] ++ (with pkgs; [
             # Some of these are available in a normal shell but need to be
             # specified explicitly so we can run this via systemd.
             docopts
             fio
             jq
+            gawk # Required by docopts
+            coreutils
+            util-linux
+          ]);
+          text = builtins.readFile ./src/run-benchmark.sh;
+          excludeShellChecks =
+            [ "SC2154" ]; # Shellcheck can't tell ARGS_* is set.
+          extraShellCheckFlags =
+            [ "--external-sources" "--source-path=${pkgs.docopts}/bin" ];
+        };
+        # Wrapper for actually running the benchmarks.
+        benchmarksWrapper = pkgs.writeShellApplication {
+          name = "benchmarks-wrapper";
+          runtimeInputs = [ bpftraceScripts runBenchmark ] ++ (with pkgs; [
+            # Some of these are available in a normal shell but need to be
+            # specified explicitly so we can run this via systemd.
+            docopts
             gawk # Required by docopts
             coreutils
             util-linux
