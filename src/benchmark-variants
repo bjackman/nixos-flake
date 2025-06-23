@@ -55,20 +55,14 @@ EOF
     REMOTE_RESULTS_DIR=/tmp/benchmark-results
     # shellcheck disable=SC2029
     do_ssh "rm -rf $REMOTE_RESULTS_DIR; mkdir $REMOTE_RESULTS_DIR"
-    if "$ARGS_guest"; then
-        if "$ARGS_instrument"; then
-            # Ah lads, I've really fucked this one up
-            echo "Cannot set --instrument and --guest, sorry"
-            exit 1
-        fi
-        do_ssh "benchmarks-guest --out-dir $REMOTE_RESULTS_DIR $ARGS_benchmark"
-    else
-        cmd="benchmarks-wrapper --out-dir $REMOTE_RESULTS_DIR $ARGS_benchmark"
-        if "$ARGS_instrument"; then
-            cmd="$cmd --instrument"
-        fi
-        do_ssh "$cmd"
+    cmd="benchmarks-wrapper --out-dir $REMOTE_RESULTS_DIR $ARGS_benchmark"
+    if "$ARGS_instrument"; then
+        cmd="$cmd --instrument"
     fi
+    if "$ARGS_instrument"; then
+        cmd="$cmd --guest"
+    fi
+    do_ssh "$cmd"
 
     # Fetch the results
     local_results_dir=$(mktemp -d)

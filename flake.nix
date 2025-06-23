@@ -143,23 +143,11 @@
               # This goes encoded into the /etc/os-release as VARIANT_ID=
               system.nixos.variant_id = kernelVariant.name;
               environment.systemPackages = [
+                # benchmarks-wrapper will call run-nixos-vm but can't depend on
+                # it explicitly since that will lead to infinite recursion in
+                # the Nix code.
+                # This sucks!
                 self.nixosConfigurations.guest.config.system.build.vm
-                # Wrapper wrapper that runs the wrapper in a VM guest. This sucks :(
-                # It is really only designed to be called from benchmark-variants.
-                (pkgs.writeShellApplication {
-                  name = "benchmarks-guest";
-                  runtimeInputs = [
-                    pkgs.docopts
-                    self.nixosConfigurations.guest.config.system.build.vm
-                  ];
-                  text = builtins.readFile ./src/benchmarks-guest.sh;
-                  excludeShellChecks =
-                    [ "SC2154" ]; # Shellcheck can't tell ARGS_* is set.
-                  extraShellCheckFlags = [
-                    "--external-sources"
-                    "--source-path=${pkgs.docopts}/bin"
-                  ];
-                })
               ];
             }
           ];
