@@ -59,7 +59,7 @@ EOF
     if "$ARGS_instrument"; then
         cmd="$cmd --instrument"
     fi
-    if "$ARGS_instrument"; then
+    if "$ARGS_guest"; then
         cmd="$cmd --guest"
     fi
     do_ssh "$cmd"
