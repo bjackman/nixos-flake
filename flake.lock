@@ -3,11 +3,11 @@
     "falba": {
       "flake": false,
       "locked": {
-        "lastModified": 1750093501,
-        "narHash": "sha256-jwzMD6Hwuwp7IDRG6vaccBz5HCfpsHrfO9k4xMeR/LU=",
+        "lastModified": 1750667008,
+        "narHash": "sha256-yWPDDwFJ/PMaKRO2W598exoSbwhsL4F9r8MQBQG8iyM=",
         "owner": "bjackman",
         "repo": "falba",
-        "rev": "51feed8643dea3bb0d064e7011d8fb15546d91bd",
+        "rev": "1c35d88579201064c726849e5f31f812c1e467b8",
         "type": "github"
       },
       "original": {
