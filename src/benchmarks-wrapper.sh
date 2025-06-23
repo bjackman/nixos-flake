@@ -3,7 +3,7 @@
 # Takes care of spinning up a VM if needed amd running instrumentation.
 #
 # Usage:
-#     benchmarks-wrapper [--out-dir DIR] [--instrument] [--iterations <iterations>] <benchmark>
+#     benchmarks-wrapper [--out-dir DIR] [--instrument] [--iterations <iterations>] [--guest] <benchmark>
 #     benchmarks-wrapper --help
 #
 # Options:
@@ -11,6 +11,7 @@
 #     -i --instrument                            Run instrumentation for these benchmarks
 #     -o DIR --out-dir <dir>                     Directory to dump results in. Default uses mktemp.
 #     -n <iterations> --iterations <iterations>  Iterations to run. Default depends on benhchmark.
+#     --guest                                    Run the benchmark in a guest instead of in the host
 #     <benchmark>                                One of the benchmarks supported by run-benchmark
 
 set -e
@@ -52,7 +53,24 @@ if "$ARGS_instrument"; then
     bpftrace_pid=$!
 fi
 
-run-benchmark --out-dir "$OUT_DIR" --iterations "$ARGS_iterations" "$ARGS_benchmark"
+if "$ARGS_guest"; then
+    # This tells the NixOS QEMU runner script to use the existint TMPDIR for its
+    # xchg shared directory.
+    export USE_TMPDIR=1
+    TMPDIR="$(mktemp -d)"
+    export TMPDIR
+    # This tells systemd in the guest to just run the benchmarks-wrapper and then
+    # shut down. I'm not sure why systemd.unit= is needed, maybe some foible of
+    # NixOS. The quotes need to make it literally into the kcmdline, they are parsed
+    # by systemd. /tmp/xchg is created by NixOS and setup by run-nixos-vm (by
+    # default) as a shared directory.
+    export QEMU_KERNEL_PARAMS="systemd.run=\"/run/current-system/sw/bin/run-benchmark --out-dir /tmp/xchg $ARGS_benchmark \" systemd.unit=kernel-command-line.service"
+    # This should run the 'guest' nixosConfiguration then shut down.
+    run-nixos-vm
+    cp -R "$TMPDIR"/xchg/* "$OUT_DIR"
+else
+    run-benchmark --out-dir "$OUT_DIR" --iterations "$ARGS_iterations" "$ARGS_benchmark"
+fi
 
 if "$ARGS_instrument"; then
     sudo kill -SIGINT "$bpftrace_pid"
