@@ -365,6 +365,9 @@
             nil
             nixfmt-classic
             nixos-rebuild
+            # Stuff for kernel development:
+            gdb
+            ncurses  # For menuconfig.
           ]
           # Directly expose the dependencies of this script so it can be run
           # directly from source for convenient development.
