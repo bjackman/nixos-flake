@@ -369,6 +369,8 @@
           # Directly expose the dependencies of this script so it can be run
           # directly from source for convenient development.
           ++ benchmarkVariantsDeps;
+          # Also include the stuff that's needed to build a kernel
+          inputsFrom = [ self.kernelPackages.x86_64-linux.nixos.kernel ];
       };
 
       apps.x86_64-linux = {
