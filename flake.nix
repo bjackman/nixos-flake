@@ -163,7 +163,12 @@
         # kernel setup to be the NixOS default.
         guest = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
-          inherit modules;
+          modules = modules ++ [{
+            # Set a memory size that's smaller than the normal configuration's
+            # vmVariant since that lets us run nexted VMs for testing.
+            virtualisation.vmVariant.virtualisation.memorySize =
+              nixpkgs.lib.mkForce (32 * 1024);
+          }];
           specialArgs = {
             kernelPackages = kernelPackages.v6_14;
             kernelParams = [ ];
