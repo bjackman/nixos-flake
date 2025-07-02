@@ -164,10 +164,11 @@
         guest = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = modules ++ [{
-            # Set a memory size that's smaller than the normal configuration's
-            # vmVariant since that lets us run nexted VMs for testing.
+            # Make this nice and small becaue a) it needs to be smaller than the
+            # host (which might be a VM already) and b) nested virt is mega slow
+            # to start up big fellas.
             virtualisation.vmVariant.virtualisation.memorySize =
-              nixpkgs.lib.mkForce (32 * 1024);
+              nixpkgs.lib.mkForce (2 * 1024);
           }];
           specialArgs = {
             kernelPackages = kernelPackages.v6_14;
