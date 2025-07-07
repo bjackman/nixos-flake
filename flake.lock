@@ -16,19 +16,36 @@
         "type": "github"
       }
     },
-    "kernel-6_14": {
+    "kernel-6_16": {
       "flake": false,
       "locked": {
-        "lastModified": 1742824961,
-        "narHash": "sha256-5Fkx6y9eEKuQVbDkYh3lxFQrXCK4QJkAZcIabj0q/YQ=",
+        "lastModified": 1751836226,
+        "narHash": "sha256-3k7L4kZEZBGCVhbjy47Z7iZIjEDnZOqy74y2WjOiNHI=",
         "owner": "torvalds",
         "repo": "linux",
-        "rev": "38fec10eb60d687e30c8c6b5420d86e8149f7557",
+        "rev": "d7b8f8e20813f0179d8ef519541a3527e7661d3a",
         "type": "github"
       },
       "original": {
         "owner": "torvalds",
-        "ref": "v6.14",
+        "ref": "master",
+        "repo": "linux",
+        "type": "github"
+      }
+    },
+    "kernel-asi": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1751912026,
+        "narHash": "sha256-QH5t1l85jb6+s6D78RoEl5JtOgXYiqNnLyutokS75Wg=",
+        "owner": "bjackman",
+        "repo": "linux",
+        "rev": "bc8b20c0b87ac07092b4cd608693d8ae73caedd1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "bjackman",
+        "ref": "asi/6.16",
         "repo": "linux",
         "type": "github"
       }
@@ -86,7 +103,8 @@
     "root": {
       "inputs": {
         "falba": "falba",
-        "kernel-6_14": "kernel-6_14",
+        "kernel-6_16": "kernel-6_16",
+        "kernel-asi": "kernel-asi",
         "kernel-asi-page-cache-fix": "kernel-asi-page-cache-fix",
         "kernel-asi-rfcv2-preview": "kernel-asi-rfcv2-preview",
         "nixpkgs": "nixpkgs"

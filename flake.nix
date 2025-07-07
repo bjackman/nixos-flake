@@ -5,8 +5,12 @@
       url = "github:bjackman/falba";
       flake = false;
     };
-    kernel-6_14 = {
-      url = "github:torvalds/linux?ref=v6.14";
+    kernel-6_16 = {
+      url = "github:torvalds/linux?ref=master";
+      flake = false;
+    };
+    kernel-asi = {
+      url = "github:bjackman/linux?ref=asi/6.16";
       flake = false;
     };
     kernel-asi-rfcv2-preview = {
@@ -45,6 +49,7 @@
         "mitigations=off"
         "init_on_alloc=0"
         "earlyprintk=serial"
+        "setcpuid=retbleed"
         # Got a bug in the la57 logic and I can't get QEMU to run with la57 for
         # some reason. Think I'm gonna throw the buggy code away anyway so let's
         # just kick this can down the road.
@@ -62,60 +67,18 @@
           }
           {
             name = "base";
-            kernelPackages = kernelPackages.v6_14;
+            kernelPackages = kernelPackages.v6_16;
             kernelParams = [ ];
           }
           {
             name = "asi-off";
-            kernelPackages = kernelPackages.asi-page-cache-fix;
-            # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
-            # For newer kernels instead use setcpuid.
-            kernelParams = [ "force_cpu_bug=retbleed" ];
+            kernelPackages = kernelPackages.asi;
+            kernelParams = [ "asi=off" ];
           }
           {
             name = "asi-on";
-            kernelPackages = kernelPackages.asi-rfcv2-preview;
-            # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
-            # For newer kernels instead use setcpuid.
-            kernelParams = [ "asi=on" "force_cpu_bug=retbleed" ];
-          }
-          {
-            name = "asi-page-cache-fix";
-            kernelPackages = kernelPackages.asi-page-cache-fix;
-            # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
-            # For newer kernels instead use setcpuid.
-            kernelParams = [ "asi=on" "force_cpu_bug=retbleed" ];
-          }
-          {
-            name = "asi-page-cache-fix-off";
-            kernelPackages = kernelPackages.asi-page-cache-fix;
-            # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
-            # For newer kernels instead use setcpuid.
-            kernelParams = [ "asi=off" "force_cpu_bug=retbleed" ];
-          }
-          {
-            name = "asi-page-cache-fix-alloc-ephmap";
-            kernelPackages = kernelPackages.asi-page-cache-fix;
-            # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
-            # For newer kernels instead use setcpuid.
-            kernelParams = [
-              "asi=off"
-              "force_cpu_bug=retbleed"
-              "page_alloc_ephmap=always_alloc"
-              "shmem_ephmap=always_alloc"
-            ];
-          }
-          {
-            name = "asi-page-cache-fix-use-ephmap";
-            kernelPackages = kernelPackages.asi-page-cache-fix;
-            # WARNING: force_cpu_bug was added as a hack in my rfcv2-preview branch.
-            # For newer kernels instead use setcpuid.
-            kernelParams = [
-              "asi=off"
-              "force_cpu_bug=retbleed"
-              "page_alloc_ephmap=always_use"
-              "shmem_ephmap=always_use"
-            ];
+            kernelPackages = kernelPackages.asi;
+            kernelParams = [ "asi=on" ];
           }
         ];
         modules = [
@@ -171,7 +134,7 @@
               nixpkgs.lib.mkForce (2 * 1024);
           }];
           specialArgs = {
-            kernelPackages = kernelPackages.v6_14;
+            kernelPackages = kernelPackages.nixos;
             kernelParams = [ ];
           };
         };
@@ -181,19 +144,14 @@
         # NixOS's default kernel. This is just here so that I can work on these
         # configs on tiny wittle waptops as it lets you avoid compiling a kernel.
         nixos = pkgs.linuxPackages;
-        v6_14 = pkgs.linuxPackages_custom {
-          version = "6.14";
-          src = inputs.kernel-6_14;
-          configfile = kconfigs/v6.14_nix_based.config;
+        v6_16 = pkgs.linuxPackages_custom {
+          version = "6.16-rc5";
+          src = inputs.kernel-6_16;
+          configfile = kconfigs/v6.16_nix_based_asi.config;
         };
-        asi-rfcv2-preview = pkgs.linuxPackages_custom {
-          version = "6.12";
-          src = inputs.kernel-asi-rfcv2-preview;
-          configfile = kconfigs/v6.12_nix_based_asi.config;
-        };
-        asi-page-cache-fix = pkgs.linuxPackages_custom {
-          version = "6.12";
-          src = inputs.kernel-asi-page-cache-fix;
+        asi = pkgs.linuxPackages_custom {
+          version = "6.16-rc5";
+          src = inputs.kernel-asi;
           configfile = kconfigs/v6.12_nix_based_asi.config;
         };
       };
