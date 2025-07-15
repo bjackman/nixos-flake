@@ -5,3 +5,5 @@ nixos.qcow2
 *.qcow2
 *.fd
 .gdb_history
+/falba.duckdb
+/falba.duckdb.wal
