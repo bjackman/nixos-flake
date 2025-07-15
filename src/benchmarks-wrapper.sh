@@ -39,6 +39,7 @@ if "$ARGS_instrument"; then
     bpftrace_pid=$!
 fi
 
+mkdir "$OUT_DIR/results"
 if "$ARGS_guest"; then
     # This tells the NixOS QEMU runner script to use the existint TMPDIR for its
     # xchg shared directory.
@@ -53,9 +54,9 @@ if "$ARGS_guest"; then
     export QEMU_KERNEL_PARAMS="systemd.run=\"/run/current-system/sw/bin/run-benchmark --out-dir /tmp/xchg $ARGS_benchmark \" systemd.unit=kernel-command-line.service"
     # This should run the 'guest' nixosConfiguration then shut down.
     run-nixos-vm
-    cp -R "$TMPDIR"/xchg/* "$OUT_DIR"
+    cp -R "$TMPDIR"/xchg/* "$OUT_DIR/results"
 else
-    run-benchmark --out-dir "$OUT_DIR" --iterations "$ARGS_iterations" "$ARGS_benchmark"
+    run-benchmark --out-dir "$OUT_DIR/results" --iterations "$ARGS_iterations" "$ARGS_benchmark"
 fi
 
 if "$ARGS_instrument"; then
