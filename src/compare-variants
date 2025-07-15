@@ -38,9 +38,9 @@ else
     INSTRUMENTED_CMP="IS NULL"
 fi
 
-declare -a extra_args
+extra_filter=
 if [ -n "$ARGS_test" ]; then
-    extra_args+=("--test" "$ARGS_test")
+    extra_filter="AND test_name = '$ARGS_test'"
 fi
 
 # nixos_system is fully derivative of the other facts so we ignore that.
@@ -49,5 +49,6 @@ fi
 
 falba cmp --filter "\
         instrumented $INSTRUMENTED_CMP AND \
-        nixos_config_rev = '$CONFIG_REVISION'" \
-    --fact variant --metric "$ARGS_metric" "${extra_args[@]}"
+        nixos_config_rev = '$CONFIG_REVISION'
+        $extra_filter" \
+    --fact variant --metric "$ARGS_metric"
