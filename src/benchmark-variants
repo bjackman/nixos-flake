@@ -76,5 +76,5 @@ EOF
     else
         test_name="$ARGS_benchmark"_host
     fi
-    falba import "$test_name" "$local_results_dir"/*
+    falba import --test-name "$test_name" "$local_results_dir"/*
 done
