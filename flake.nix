@@ -132,6 +132,8 @@
             # to start up big fellas.
             virtualisation.vmVariant.virtualisation.memorySize =
               nixpkgs.lib.mkForce (2 * 1024);
+            boot.tmp.useTmpfs = nixpkgs.lib.mkForce false;
+            virtualisation.diskSize = 16 * 1024; # megabytes
           }];
           specialArgs = {
             kernelPackages = kernelPackages.nixos;
