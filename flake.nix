@@ -145,12 +145,12 @@
         # configs on tiny wittle waptops as it lets you avoid compiling a kernel.
         nixos = pkgs.linuxPackages;
         v6_16 = pkgs.linuxPackages_custom {
-          version = "6.16-rc5";
+          version = "6.16-rc6";
           src = inputs.kernel-6_16;
           configfile = kconfigs/v6.16_nix_based_asi.config;
         };
         asi = pkgs.linuxPackages_custom {
-          version = "6.16-rc5";
+          version = "6.16-rc6";
           src = inputs.kernel-asi;
           configfile = kconfigs/v6.12_nix_based_asi.config;
         };

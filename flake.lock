@@ -60,11 +60,11 @@
     "kernel-asi": {
       "flake": false,
       "locked": {
-        "lastModified": 1751912026,
-        "narHash": "sha256-QH5t1l85jb6+s6D78RoEl5JtOgXYiqNnLyutokS75Wg=",
+        "lastModified": 1752580004,
+        "narHash": "sha256-uraf66TtBSBS4WfwVjAgnDlIAV4uh4KJooLzdUG59d0=",
         "owner": "bjackman",
         "repo": "linux",
-        "rev": "bc8b20c0b87ac07092b4cd608693d8ae73caedd1",
+        "rev": "03422d9220d3694e22858ef333bfe9c6d61ced65",
         "type": "github"
       },
       "original": {
