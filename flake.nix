@@ -218,12 +218,23 @@
             runtimeInputs = with pkgs; [
               libelf
               elfutils.dev
-              gnumake
               gcc
               bison
               flex
               bc
               rsync
+
+              # We sometimes run this in an extremely minimal environment via
+              # systemd so we ned to be pretty verbose about specifying stuff
+              # that's otherwise pretty basic.
+              findutils
+              gnumake
+              gnused
+              gawk
+              bash
+              gnugrep
+              gnutar
+              xz
             ];
             text = ''
               # Nix does this for you in the build environment but doesn't
