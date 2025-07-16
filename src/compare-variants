@@ -3,7 +3,7 @@
 # Wrapper for 'falba compare with some ASI-benchmarking specific defaults.
 #
 # Usage:
-#     compare-variants [--config-revision REV] [--instrumented] [--metric METRIC] [ --test TEST ]
+#     compare-variants [options]
 #     compare-variants --help
 #
 # Options:
@@ -16,6 +16,7 @@
 #     --instrumented         Compare instrumented runs instead of ignoring them.
 #     --metric METRIC        Metric to compare [default: fio_randread_tmpfs_read_iops].
 #     --test TEST            Forwarded to Falba CLI's --test arg.
+#     --hist-width WIDTH     Forwarded to Falba-CLI
 
 set -eu -o pipefail
 
@@ -43,6 +44,11 @@ if [ -n "$ARGS_test" ]; then
     extra_filter="AND test_name = '$ARGS_test'"
 fi
 
+declare -a extra_args
+if [ -n "$ARGS_hist_width" ]; then
+    extra_args+=("--hist-width" "$ARGS_hist_width")
+fi
+
 # nixos_system is fully derivative of the other facts so we ignore that.
 # (This is a workaround for a silly Falba limitation, it should be able to
 # detect that it doesn't matter).
@@ -51,4 +57,4 @@ falba cmp --filter "\
         instrumented $INSTRUMENTED_CMP AND \
         nixos_config_rev = '$CONFIG_REVISION'
         $extra_filter" \
-    --fact variant --metric "$ARGS_metric"
+    --fact variant --metric "$ARGS_metric" "${extra_args[@]}"
