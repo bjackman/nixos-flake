@@ -80,6 +80,17 @@
             kernelPackages = kernelPackages.asi;
             kernelParams = [ "asi=on" ];
           }
+          {
+            # For a fair comparison of ASI against an equivalently-powerful
+            # mitigation, some hacks to enable aggressive use of IBPB.
+            name = "ibpb";
+            kernelPackages = kernelPackages.asi;
+            # Have to disable spectre_v2 because otherwise retbleed= is ignored
+            # on Intel machines with IBRS (I think this might be a bug, comments
+            # say "without affecting the effects of the retbleed= cmdline
+            # option").
+            kernelParams = [ "mitigations=auto" "retbleed=ibpb" "spectre_v2=off" ];
+          }
         ];
         modules = [
           ./modules/brendan.nix
