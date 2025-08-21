@@ -53,6 +53,10 @@
         # some reason. Think I'm gonna throw the buggy code away anyway so let's
         # just kick this can down the road.
         "no5lvl"
+        # I said here that I was setting setcpuid=retblled to trigger the IBPB
+        # but that was wrong, it was actually hard-coded in asi.c. So to disable
+        # it we just pretend the CPU doesn't support IBPB at all.
+        "clearcpuid=ibpb"
       ];
       kernelPackages = self.kernelPackages.x86_64-linux;
     in {
