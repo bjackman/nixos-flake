@@ -1,3 +1,16 @@
+# A bunch of garbage
+
+This is the horrible big ball of mess that I used for benchmarking ASI for [this
+LKML
+posting](https://lore.kernel.org/all/20250812173109.295750-1-jackmanb@google.com/).
+This is also where I learned Nix. It is not accessible or documented.
+
+I am now incrementally working on separating it into smaller, composable,
+reusable balls of mess
+[here](https://github.com/bjackman/kernel-benchmarks-nix).
+
+---
+
 # Flake for configuring NixOS systems
 
 This flake defines some NixOS systems. To see what builds are available use `nix flake show .`.
